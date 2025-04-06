@@ -1,38 +1,45 @@
-# AI Planner 🧠📅
+# AI Life Planner 🧠📅
 
-An AI-powered schedule assistant. Users input natural language like  
-"Workout at 3 PM tomorrow for 2 hours", and the system will parse it into structured tasks with title, start_time, and end_time.
+An AI-powered personal planning assistant designed for **casual but meaningful life goals**.
 
-一个由 AI 驱动的智能日程助手。用户输入自然语言描述（如：“明天下午三点健身两个小时”），系统将其解析为结构化的日程任务（标题、开始时间、结束时间）。
+Users can input natural language like:
+- “I want to lose 3 pounds in 3 months”
+- “I have a date tomorrow, help me plan it”
+- “I want to move house next month”
+
+And the system will **analyze the intent**, **generate executable tasks**, and **suggest resources or schedules**.
+
+一个由 AI 驱动的个人生活规划工具，适用于更“日常化”的人生目标或临时需求。
+
+你可以输入：
+- “我想三个月内瘦 3 斤”
+- “我明天有个约会，帮我安排一下流程”
+- “下个月我想搬家”
+
+系统会**理解你的意图**，并给出**行动计划、时间建议**，甚至推荐**相关资源**或地点。
 
 ---
 
 ## ✨ Features / 功能亮点
 
-- 🧠 Understands natural language using OpenAI Function Calling  
-- 🗓 Outputs structured event objects: title, start_time, end_time  
-- ⚙️ Built with NestJS for modular backend structure  
-- 🚀 Designed for frontend-backend separation (React + NestJS)  
-- ✅ MVP stage focused on fast iteration and core value
-  
-  ---
-- 🧠 使用 OpenAI Function Calling 解析自然语言
-- 🗓 输出结构化的日程事件：标题、开始时间、结束时间
-- ⚙️ 使用 NestJS 搭建后端，结构清晰、易扩展
-- 🚀 前后端分离架构（React + NestJS）
-- ✅ 当前为 MVP 阶段，核心功能优先，快速验证思路
+| 功能 | 描述 |
+|------|------|
+| 🎯 目标规划 | 理解长期目标并自动拆解为阶段性任务 |
+| ⚡ 情境建议 | 对短期计划（如约会、出行）给出详细建议和流程 |
+| 📅 时间结构化 | 为每个建议生成日历时间段（可选同步） |
+| 📍 可扩展 | 后续支持地点推荐、服务商对接、提醒通知等 |
 
 ---
 
 ## 🔧 Tech Stack / 技术栈
 
-| 技术 / Tech        | 用途 / Purpose        |
-|-------------------|------------------------|
-| NestJS            | Backend framework      |
-| OpenAI API        | Language understanding |
-| TypeScript        | Type-safe development  |
-| React + Vite      | Frontend (planned)     |
-| PostgreSQL        | Data storage (planned) |
+| 技术 | 用途 |
+|------|------|
+| NestJS | 后端框架，负责接收与处理请求 |
+| OpenAI API | AI 语言理解与生成逻辑 |
+| TypeScript | 强类型开发体验 |
+| PostgreSQL (optional) | 后续任务持久化 |
+| React + Vite (frontend/) | 前端界面（开发中） |
 
 ---
 
