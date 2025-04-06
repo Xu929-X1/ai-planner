@@ -6,4 +6,4 @@ import { PlannerController } from './planner.controller';
   controllers: [PlannerController],
   providers: [PlannerService],
 })
-export class PlannerModule {}
+export class PlannerModule { }
