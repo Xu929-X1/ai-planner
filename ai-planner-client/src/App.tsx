@@ -5,8 +5,8 @@ import {
   Route
 } from "react-router-dom";
 import NotFound from "./pages/NotFound";
-import Home from "./pages/home";
-import Planner from "./pages/planner";
+import Home from "./pages/Home";
+import Planner from "./pages/Planner";
 import "./App.css";
 export default function App() {
   return (
