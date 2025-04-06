@@ -1,8 +1,9 @@
 {
-  "name": "ai-planner",
+  "name": "ai-planner-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
