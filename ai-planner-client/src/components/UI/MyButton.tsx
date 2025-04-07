@@ -10,7 +10,7 @@ export const MyButton = ({ variant = "default", className, ...props }: MyButtonP
     return (
         <Button
             variant={variant}
-            className={cn(className, "bg-blue-500 text-white rounded p-2 ml-2 text-lg")}
+            className={cn(className, "bg-blue text-white rounded p-2 ml-2 text-lg")}
             {...props}
         />
     )
