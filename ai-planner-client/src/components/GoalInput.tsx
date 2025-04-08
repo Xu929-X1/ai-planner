@@ -7,7 +7,7 @@ export default function GoalInput() {
         <div>
 
             <MyInput type="text" placeholder='Enter your goal here...' className='w-full mb-4' />
-            <MyButton variant='default'>
+            <MyButton >
                 Start Planning
             </MyButton>
         </div>

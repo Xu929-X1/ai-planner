@@ -12,14 +12,14 @@
         "src/*"
       ],
       "@/lib/*": [
-        "lib/*"
+        "src/lib/*"
       ],
       "@lib/*": [
-        "lib/*"
+        "src/lib/*"
       ],
       "@components/*": [
         "components/*"
-      ]
+      ],
     },
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -35,6 +35,6 @@
   "include": [
     "src",
     "components",
-    "lib"
+    "src/lib"
   ],
 }
