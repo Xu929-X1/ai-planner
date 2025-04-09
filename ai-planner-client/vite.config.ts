@@ -8,8 +8,8 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths(), tailwindcss()],
   server: {
     proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
+      '/api/v1': {
+        target: 'http://localhost:3000',
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, '')
       }

@@ -11,6 +11,7 @@ type UseAxiosResult<T> = {
 type UseAxios<T> = {
     url: string;
     config?: AxiosRequestConfig;
+    manual?: boolean;
 }
 
 
@@ -36,7 +37,9 @@ export default function useAxios<T>(props: UseAxios<T>): UseAxiosResult<T> {
     }, [props.url, JSON.stringify(props.config)])
 
     useEffect(() => {
-        fetchData()
+        if (!props.manual) {
+            fetchData()
+        }
     }, [fetchData])
 
     return { data, error, loading, refetch: fetchData }
