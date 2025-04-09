@@ -1,7 +1,40 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@/lib/*": [
+        "src/lib/*"
+      ],
+      "@lib/*": [
+        "src/lib/*"
+      ],
+      "@components/*": [
+        "components/*"
+      ],
+    },
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "out-tsc",
+    "**/*.spec.ts"
+  ],
+  "include": [
+    "src",
+    "components",
+    "src/lib"
+  ],
 }
