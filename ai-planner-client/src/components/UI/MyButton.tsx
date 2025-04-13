@@ -10,7 +10,7 @@ export const MyButton = ({ variant = "default", className, ...props }: MyButtonP
     return (
         <Button
             variant={variant}
-            className={cn(className, className = "text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200")}
+            className={cn(className, className = "text-white rounded hover:bg-blue-600 transition duration-200 hover:cursor-pointer")}
             {...props}
         />
     )

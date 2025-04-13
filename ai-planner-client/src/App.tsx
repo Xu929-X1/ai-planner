@@ -8,14 +8,19 @@ import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import Planner from "./pages/Planner";
 import "./App.css";
+import { DndContext } from "@dnd-kit/core";
+import Playground from "./pages/Playground";
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/planner" element={<Planner />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+    <DndContext>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/planner" element={<Planner />} />
+          <Route path="/playground" element={<Playground />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </DndContext>
   );
 }
