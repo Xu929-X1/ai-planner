@@ -7,7 +7,6 @@ import {
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import Planner from "./pages/Planner";
-import "./App.css";
 import { DndContext } from "@dnd-kit/core";
 import Playground from "./pages/Playground";
 export default function App() {
