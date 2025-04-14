@@ -4,6 +4,9 @@ const config: Config = {
     content: ['./src/**/*.{html,ts,tsx}'],
     theme: {
         extend: {
+            zIndex: {
+                9999: '9999',
+            },
             borderRadius: {
                 lg: 'var(--radius)',
             },
