@@ -15,7 +15,7 @@ export default function CalendarDayView({ timeGridTimeSpan, rowHeight }: Calenda
             className="grid border-l border-r border-gray-300 shrink-0"
             style={{
                 gridTemplateRows: `repeat(${timeGridCount}, ${rowHeight}px)`,
-                width: '100%' // 填满父容器
+                width: '100%'
             }}
         >
             {Array.from({ length: timeGridCount }).map((_, index) => {
@@ -32,7 +32,9 @@ export default function CalendarDayView({ timeGridTimeSpan, rowHeight }: Calenda
                             hover:bg-gray-200`}
                         style={{ height: `${rowHeight}px` }}
                     >
-                        {/* event */}
+                        {
+
+                        }
                     </div>
                 );
             })}

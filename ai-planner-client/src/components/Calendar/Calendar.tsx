@@ -19,9 +19,6 @@ export default function Calendar() {
     const [timeGridTimeSpan, setTimeGridTimeSpan] = useState(30);
     const [mode, setMode] = useState<'workWeek' | 'allWeek'>('workWeek');
     const [currentDate, setCurrentDate] = useState(dayjs());
-
-    const columnCount = mode === 'workWeek' ? 5 : 7;
-    const columnWidth = 140;
     const rowHeight = 40;
     const totalMinutes = 24 * 60;
     const timeGridCount = totalMinutes / timeGridTimeSpan;
@@ -29,21 +26,13 @@ export default function Calendar() {
     const getNowOffsetPx = () => {
         const now = dayjs();
         if (!now.isSame(dayjs(), 'day')) return 0;
-
         const minutes = now.hour() * 60 + now.minute();
         return (minutes / timeGridTimeSpan) * rowHeight;
     };
     return (
         <div className="grid grid-rows-[auto_1fr_auto] grid-cols-1 h-screen w-screen">
             <div className="flex gap-4 items-center justify-between">
-                {/* <DatePicker
-                    selected={currentDate.toDate()}
-                    onChange={(date) => setCurrentDate(dayjs(date))}
-                    dateFormat="yyyy-MM-dd"
-                    className="text-white px-2 py-1 border-white border-2 rounded-lg focus:outline-none focus:border-blue-500 "
-                /> */}
                 <div className='flex gap-4'>
-
                     <MyButton onClick={() => setCurrentDate(currentDate.subtract(1, 'week'))}>
                         &larr; Prev Week
                     </MyButton>
@@ -56,13 +45,11 @@ export default function Calendar() {
 
                 </div>
                 <div className='flex gap-4'>
-
                     <MyButton onClick={() => setMode('allWeek')}>7-Day</MyButton>
                     <MyButton onClick={() => setMode('workWeek')}>5-Day</MyButton>
                 </div>
             </div>
             <div className="w-full">
-                {/* 顶部日期栏 */}
                 <div className="flex sticky top-0 bg-white w-full">
                     <div className="w-[60px] shrink-0" />
                     {weekDates.map((date) => (

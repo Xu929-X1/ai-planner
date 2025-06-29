@@ -1,0 +1,55 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../app/generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("AIPLANNER_POSTGRES_URL")
+}
+
+enum StatusCd {
+    PENDING
+    IN_PROGRESS
+    COMPLETED
+    CANCELLED
+}
+
+model User {
+    id        Int      @id @default(autoincrement())
+    email     String   @unique
+    name      String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    Tasks     Task[]
+    Plan      Plan[]
+}
+
+model Plan {
+    id          Int       @id @default(autoincrement())
+    title       String
+    description String?
+    status      StatusCd
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    dueDate     DateTime?
+    priority    Int?
+    userId      Int
+    user        User      @relation(fields: [userId], references: [id])
+    Tasks       Task[] // ✅ Plan 下的任务
+}
+
+model Task {
+    id          Int       @id @default(autoincrement())
+    title       String
+    description String?
+    status      StatusCd
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    dueDate     DateTime?
+    priority    Int?
+    userId      Int
+    user        User      @relation(fields: [userId], references: [id])
+    planId      Int? // ✅ 可为空
+    plan        Plan?     @relation(fields: [planId], references: [id])
+}
