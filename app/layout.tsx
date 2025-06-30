@@ -1,4 +1,4 @@
-
+import "@/app/globals.css";
 export const metadata = {
     title: {
         template: '%s | AI Planner',
