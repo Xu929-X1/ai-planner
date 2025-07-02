@@ -83,9 +83,9 @@ curl -X POST http://localhost:3000/planner \
 
  -[] 接入 Google Calendar 同步 | Integrate with Google Calendar
 
- -[] 实现前端界面（输入+结果展示）| Build frontend interface (input + result display)
+ -[X] 实现前端界面（输入+结果展示）| Build frontend interface (input + result display) - WIP
 
- -[] 添加用户身份系统（Google 登录）| Add user authentication system (Google Login)
+ -[X] 添加用户身份系统（Google 登录）| Add user authentication system (Google Login) - WIP
 
  -[] 多任务支持（列表/批量）| Support multiple tasks (list / batch input)
 
