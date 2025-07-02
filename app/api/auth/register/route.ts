@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@/app/generated/prisma';
 import bcrypt from 'bcryptjs';
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export async function POST(req: Request) {
     try {
-        const {
-            email,
-            password
-        } = await req.json();
+        console.log('Received registration request');
+        const requestBody = await req.json() as {
+            body: string
+        };
+        const { email, password } = JSON.parse(requestBody.body);
         if (!email || !password) {
             return new Response(JSON.stringify({ error: 'Email and password are required' }), { status: 400 });
         }
@@ -27,7 +28,10 @@ export async function POST(req: Request) {
                 password: hashedPassword
             }
         });
-
+        if (newuser) {
+            console.log('User registered successfully:', newuser.email);
+            return new Response(JSON.stringify({ message: 'Registration successful', userId: newuser.id }), { status: 200 });
+        }
     } catch (error) {
         console.error('Error during registration:', error);
         return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });

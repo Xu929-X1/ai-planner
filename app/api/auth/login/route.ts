@@ -1,7 +1,27 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { PrismaClient } from '@/app/generated/prisma'
-const prisma = new PrismaClient();
+import { cookies } from 'next/headers';
+import * as jose from 'jose';
+import prisma from '@/lib/prisma';
+
+type UserPayload = {
+    id: number;
+    email: string;
+}
+
+async function generateToken(payload: UserPayload, secret: string) {
+    const encoder = new TextEncoder();
+    const jwt = await new jose.SignJWT(payload)
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('2h') // Token valid for 2 hours
+        .sign(encoder.encode(secret));
+
+    return jwt;
+}
+
+
 export async function POST(req: Request) {
     try {
         const requestBody = await req.json() as {
@@ -24,7 +44,16 @@ export async function POST(req: Request) {
         if (!isValid) {
             return NextResponse.json({ error: 'Incorrect password or username' }, { status: 401 })
         }
-
+        const token = await generateToken({ id: user.id, email: user.email }, process.env.JWT_SECRET || 'default_secret');
+        (await cookies()).set({
+            name: 'auth_token',
+            value: token,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            expires: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours
+            maxAge: 2 * 60 * 60, // 2 hours
+        })
         // 如果只返回用户基本信息
         return NextResponse.json({ message: 'Login success', userId: user.id, email: user.email })
     } catch (error) {

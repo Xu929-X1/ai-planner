@@ -95,6 +95,12 @@ export default function Login() {
                 <PasswordInput id="password" name='password' required />
               </div>
             </div>
+
+            {state.error && (
+              <div className="mt-4 text-red-600">
+                {state.error}
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col gap-2 ">
             <Button type="submit" className="w-full" >
