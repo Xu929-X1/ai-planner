@@ -10,20 +10,17 @@ import { useRouter } from 'next/navigation'
 function GrayToColorPlane({ colorful }: { colorful: boolean }) {
     const meshRef = useRef<any>(null);
 
-    // 创建 uniform 对象
     const uniforms = useMemo(() => ({
         uTime: { value: 0 },
         uColorful: { value: 0 },
     }), []);
 
-    // 每帧更新时间
     useFrame(({ clock }) => {
         if (meshRef.current) {
             uniforms.uTime.value = clock.getElapsedTime();
         }
     });
 
-    // React 状态变化时，手动更新 uColorful
     useEffect(() => {
         uniforms.uColorful.value = colorful ? 1.0 : 0.0;
     }, [colorful, uniforms]);
