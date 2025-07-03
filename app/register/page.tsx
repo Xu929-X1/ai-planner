@@ -6,7 +6,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import PasswordInput from '@/components/PasswordInput';
 import { Input } from '@/components/UI/input';
 import { endpoints } from '../api/route-helper';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
 type State = {
     error?: string
@@ -46,7 +46,7 @@ async function handleRegister(prevState: State, formData: FormData): Promise<Sta
 }
 
 export default function Register() {
-    const [state, formAction, isPending] = useActionState(handleRegister, {});
+    const [state, formAction] = useActionState(handleRegister, {});
     return (
         <div className='flex h-screen items-center justify-center bg-gray-100'>
             <Card className="w-full max-w-md">

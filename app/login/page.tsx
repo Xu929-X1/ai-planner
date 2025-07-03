@@ -4,17 +4,13 @@ import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader,
 import { Input } from '@/components/UI/input'
 import { Label } from '@/components/UI/label'
 import { useRouter } from 'next/navigation'
-import React, { useActionState, useState } from 'react'
+import React, { useActionState } from 'react'
 import GoogleIcon from '@mui/icons-material/Google';
 import axios from 'axios';
 import { endpoints } from '../api/route-helper'
 import PasswordInput from '@/components/PasswordInput'
 import Link from 'next/link'
 
-type LoginFormData = {
-  email: string;
-  password: string;
-}
 type State = {
   error?: string
 }
@@ -23,7 +19,7 @@ type State = {
 
 
 export default function Login() {
-  const [state, formAction, isPending] = useActionState(handleLogin, {})
+  const [state, formAction] = useActionState(handleLogin, {})
   const router = useRouter();
 
   function handleSignUp() {

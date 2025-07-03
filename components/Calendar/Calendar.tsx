@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import CalendarDayView from './CalendarDayView';
 import { MyButton } from '../UI/MyButton';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
@@ -16,7 +15,7 @@ const getWeekDates = (date: Dayjs, mode: 'workWeek' | 'allWeek') => {
 };
 
 export default function Calendar() {
-    const [timeGridTimeSpan, setTimeGridTimeSpan] = useState(30);
+    const [timeGridTimeSpan] = useState(30);
     const [mode, setMode] = useState<'workWeek' | 'allWeek'>('workWeek');
     const [currentDate, setCurrentDate] = useState(dayjs());
     const rowHeight = 40;

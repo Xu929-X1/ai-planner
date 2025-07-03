@@ -8,7 +8,11 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { useRouter } from 'next/navigation'
 
 function GrayToColorPlane({ colorful }: { colorful: boolean }) {
-    const meshRef = useRef<any>(null);
+    const meshRef = useRef<{
+        uTime: {
+            value: number
+        }
+    }>(null);
 
     const uniforms = useMemo(() => ({
         uTime: { value: 0 },
@@ -89,16 +93,16 @@ export default function Page() {
                     <div className="mb-8 transition-colors duration-500">
                         <h1
                             className={`text-4xl font-bold ${colorful
-                                    ? 'text-slate-600 drop-shadow-[0_0_6px_rgba(0,255,255,0.4)]'
-                                    : 'text-gray-600'
+                                ? 'text-slate-600 drop-shadow-[0_0_6px_rgba(0,255,255,0.4)]'
+                                : 'text-gray-600'
                                 } transition-colors duration-500`}
                         >
                             Welcome to AI Planner
                         </h1>
                         <p
                             className={`mt-2 ${colorful
-                                    ? 'text-slate-500 drop-shadow-[0_0_4px_rgba(0,255,255,0.3)]'
-                                    : 'text-gray-500'
+                                ? 'text-slate-500 drop-shadow-[0_0_4px_rgba(0,255,255,0.3)]'
+                                : 'text-gray-500'
                                 } transition-colors duration-500`}
                         >
                             Making plans has never been so easy.

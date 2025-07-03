@@ -1,7 +1,8 @@
 import { Button } from "./button"
 import { cn } from "@/lib/utils"
+import type { ButtonHTMLAttributes } from "react"
 
-interface MyButtonProps extends React.ComponentProps<any> {
+interface MyButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: "default" | "ghost" | "destructive"
     className?: string
 }
