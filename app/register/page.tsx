@@ -25,7 +25,7 @@ async function handleRegister(prevState: State, formData: FormData): Promise<Sta
             return { error: 'Passwords do not match' };
         }
 
-        const response = await axios.post(endpoints.auth.register, {
+        const response = await axios.post(endpoints.auth.register.post, {
             body: JSON.stringify({
                 email,
                 password
@@ -38,7 +38,6 @@ async function handleRegister(prevState: State, formData: FormData): Promise<Sta
             return { error: 'Registration failed, please try again.' };
         }
     } catch (error) {
-        console.error('Registration error:', error);
         if (axios.isAxiosError(error) && error.response) {
             return { error: error.response.data?.error || 'Registration failed' };
         }

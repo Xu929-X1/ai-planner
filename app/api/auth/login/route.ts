@@ -23,10 +23,8 @@ async function generateToken(payload: UserPayload, secret: string) {
 
 export async function POST(req: Request) {
     try {
-        const requestBody = await req.json() as {
-            body: string
-        };
-        const { email, password } = JSON.parse(requestBody.body);
+        const { email, password }= await req.json();
+       
         if (!email || !password) {
             return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
         }
@@ -54,7 +52,7 @@ export async function POST(req: Request) {
             maxAge: 2 * 60 * 60, // 2 hours
         })
         // 如果只返回用户基本信息
-        return NextResponse.json({ message: 'Login success', userId: user.id, email: user.email })
+        return NextResponse.json({ message: 'Login success', userId: user.id, email: user.email }, { status: 200 })
     } catch (error) {
         console.error(error)
         return NextResponse.json({ error: 'Server Error' }, { status: 500 })

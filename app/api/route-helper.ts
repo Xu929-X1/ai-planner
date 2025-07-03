@@ -1,6 +1,15 @@
 export const endpoints = {
     auth: {
-        register: "/api/auth/register",
-        login: "/api/auth/login",
+        register: {
+            post: "/api/auth/register"
+        },
+        login: {
+            post: "/api/auth/login"
+        },
+    },
+    user: {
+        self: {
+            get: "/api/me"
+        }
     }
 }

@@ -3,7 +3,7 @@ import { Button } from '@/components/UI/button'
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/UI/card'
 import { Input } from '@/components/UI/input'
 import { Label } from '@/components/UI/label'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import React, { useActionState, useState } from 'react'
 import GoogleIcon from '@mui/icons-material/Google';
 import axios from 'axios';
@@ -20,38 +20,39 @@ type State = {
 }
 
 
-async function handleLogin(prevState: State, formData: FormData): Promise<State> {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  try {
-    const res = await axios.post(endpoints.auth.login, {
-      body: JSON.stringify({
-        email,
-        password
-      })
-    });
-    const status = res.status;
-    if (status === 200) {
-      redirect('/dashboard');
-    } else {
-      return { error: 'Login failed, please check your credentials.' };
-    }
-  } catch (error) {
-    console.error('Login error:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      return { error: error.response.data.error || 'Login failed' };
-    }
-    return { error: 'An unexpected error occurred' };
-  }
-}
+
 
 export default function Login() {
   const [state, formAction, isPending] = useActionState(handleLogin, {})
+  const router = useRouter();
 
   function handleSignUp() {
-    redirect('/register');
+    router.push('/register');
   }
+  async function handleLogin(prevState: State, formData: FormData): Promise<State> {
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
 
+    try {
+      const res = await axios.post(endpoints.auth.login.post, {
+        email,
+        password
+      });
+      const status = res.status;
+      if (status === 200) {
+        router.push("/")
+        return {};
+      } else {
+        return { error: 'Login failed, please check your credentials.' };
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      if (axios.isAxiosError(error) && error.response) {
+        return { error: error.response.data.error || 'Login failed' };
+      }
+      return { error: 'An unexpected error occurred' };
+    }
+  }
 
   function handleLoginWithGoogle() {
     // Logic for Google login 
@@ -96,7 +97,7 @@ export default function Login() {
               </div>
             </div>
 
-            {state.error && (
+            {state?.error && (
               <div className="mt-4 text-red-600">
                 {state.error}
               </div>
