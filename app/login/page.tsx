@@ -4,23 +4,22 @@ import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader,
 import { Input } from '@/components/UI/input'
 import { Label } from '@/components/UI/label'
 import { useRouter } from 'next/navigation'
-import React, { useActionState } from 'react'
+import React, { useActionState, useContext } from 'react'
 import GoogleIcon from '@mui/icons-material/Google';
 import axios from 'axios';
 import { endpoints } from '../api/route-helper'
 import PasswordInput from '@/components/PasswordInput'
 import Link from 'next/link'
+import { UserContext } from '@/contexts/userContext'
 
 type State = {
   error?: string
 }
 
-
-
-
 export default function Login() {
   const [state, formAction] = useActionState(handleLogin, {})
   const router = useRouter();
+  const userContextInstance = useContext(UserContext)
 
   function handleSignUp() {
     router.push('/register');
@@ -36,7 +35,8 @@ export default function Login() {
       });
       const status = res.status;
       if (status === 200) {
-        router.push("/")
+        router.push("/dashboard");
+        userContextInstance.getUserInfo();
         return {};
       } else {
         return { error: 'Login failed, please check your credentials.' };

@@ -1,4 +1,5 @@
 import "@/app/globals.css";
+import UserProvider from "@/contexts/userContext";
 export const metadata = {
     title: {
         template: '%s | AI Planner',
@@ -9,10 +10,13 @@ export const metadata = {
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+
     return (
         <html lang={typeof navigator !== "undefined" ? navigator.language.split('-')[0] : "en"}>
             <body>
-                {children}
+                <UserProvider>
+                    {children}
+                </UserProvider>
             </body>
         </html>
     )

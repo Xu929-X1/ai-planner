@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     try {
         const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'default_secret');
         const payload = await jose.jwtVerify(token.value, secret);
-        const user = prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
             where: { id: payload.payload.id as number },
             select: {
                 id: true,
@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
                 updatedAt: true,
             }
         })
+        console.log(user);
         if (!user) {
             return new NextResponse('User not found', { status: 404 });
         }
