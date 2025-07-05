@@ -1,8 +1,6 @@
-const { PrismaClient, StatusCd } = require(
-    '../app/generated/prisma/client'
-)
-
-const prisma = new PrismaClient()
+import { StatusCd } from '../app/generated/prisma/index'
+import bcrypt from 'bcryptjs'
+import prisma from '../lib/prisma'
 
 async function main() {
     // 创建一个用户
@@ -10,8 +8,9 @@ async function main() {
         where: { email: 'test@example.com' },
         update: {},
         create: {
-            email: 'test@example.com',
+            email: '    ',
             name: 'Test',
+            password: bcrypt.hashSync('password123', 10),
         },
     })
     console.log(`Created user: ${user.name} with ID: ${user.id}`)

@@ -1,4 +1,4 @@
-export default function TimeColumn({ timeGridCount, rowHeight }: { timeGridCount: number; rowHeight: number }) {
+export default function TimeColumn({ timeGridCount }: { timeGridCount: number; rowHeight: number }) {
     const getTimeString = (index: number) => {
         const minutes = index * 30;
         const h = Math.floor(minutes / 60);
