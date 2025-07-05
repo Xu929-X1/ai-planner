@@ -35,7 +35,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
       setUserInfo(res.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-
+        setUserInfo(undefined);
       }
     } finally {
       setIsLoading(false);

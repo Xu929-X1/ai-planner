@@ -6,6 +6,9 @@ export const endpoints = {
         login: {
             post: "/api/auth/login"
         },
+        logout: {
+            get: "/api/auth/logout"
+        }
     },
     user: {
         self: {

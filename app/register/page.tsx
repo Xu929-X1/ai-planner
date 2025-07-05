@@ -48,7 +48,7 @@ async function handleRegister(prevState: State, formData: FormData): Promise<Sta
 export default function Register() {
     const [state, formAction] = useActionState(handleRegister, {});
     return (
-        <div className='flex h-screen items-center justify-center bg-gray-100'>
+        <div className='text-left flex h-screen items-center justify-center bg-gray-100 w-screen'>
             <Card className="w-full max-w-md">
                 <CardHeader>
                     <h2 className="text-2xl font-bold">Sign Up</h2>
