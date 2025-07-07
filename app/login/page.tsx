@@ -11,12 +11,15 @@ import { endpoints } from '../api/route-helper'
 import PasswordInput from '@/components/PasswordInput'
 import Link from 'next/link'
 import { UserContext } from '@/contexts/userContext'
+import { useNotification } from '@/contexts/NotificationContext'
 
 type State = {
   error?: string
 }
 
+
 export default function Login() {
+  const notificationContext = useNotification();
   const [state, formAction] = useActionState(handleLogin, {})
   const router = useRouter();
   const userContextInstance = useContext(UserContext)
@@ -44,7 +47,10 @@ export default function Login() {
     } catch (error) {
       console.error('Login error:', error);
       if (axios.isAxiosError(error) && error.response) {
+        notificationContext.showNotification(`Login Error: ${error.response.data.error}`, "error");
         return { error: error.response.data.error || 'Login failed' };
+      } else {
+        notificationContext.showNotification(`Login Error: An unexpected error occurred`, "error");
       }
       return { error: 'An unexpected error occurred' };
     }
