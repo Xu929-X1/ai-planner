@@ -15,14 +15,16 @@ import { redirect, useRouter } from "next/navigation";
 import { UserContext } from "@/contexts/userContext";
 import axios from "axios";
 import { endpoints } from "@/app/api/route-helper";
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function NavBar() {
     const router = useRouter();
     const { user, getUserInfo } = useContext(UserContext);
-
+    const notification = useNotification();
     async function logout() {
         await axios.get(endpoints.auth.logout.get);
         getUserInfo();
+        notification.showNotification("Log out successfully", "success")
         redirect("/");
     }
 
