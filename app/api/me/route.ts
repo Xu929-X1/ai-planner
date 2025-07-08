@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
                 updatedAt: true,
             }
         })
-        console.log(user);
         if (!user) {
             return new NextResponse('User not found', { status: 404 });
         }

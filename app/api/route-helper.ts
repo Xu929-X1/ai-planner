@@ -13,6 +13,9 @@ export const endpoints = {
     user: {
         self: {
             get: "/api/me"
+        },
+        getAllPlans: {
+            get: (userId: number) => `/api/user/${userId}/plans`
         }
     }
 }

@@ -4,7 +4,7 @@ import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader,
 import { Input } from '@/components/UI/input'
 import { Label } from '@/components/UI/label'
 import { useRouter } from 'next/navigation'
-import React, { useActionState, useContext } from 'react'
+import React, { useActionState, useContext, useEffect } from 'react'
 import GoogleIcon from '@mui/icons-material/Google';
 import axios from 'axios';
 import { endpoints } from '../api/route-helper'
@@ -24,13 +24,18 @@ export default function Login() {
   const router = useRouter();
   const userContextInstance = useContext(UserContext)
 
+  useEffect(() => {
+    if (userContextInstance.user) {
+      router.push("/dashboard");
+    }
+  }, [userContextInstance.user])
+
   function handleSignUp() {
     router.push('/register');
   }
   async function handleLogin(prevState: State, formData: FormData): Promise<State> {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
-
     try {
       const res = await axios.post(endpoints.auth.login.post, {
         email,

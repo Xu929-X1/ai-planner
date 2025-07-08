@@ -38,16 +38,21 @@ export default function NavBar() {
                                 <NavigationMenuTrigger>Home</NavigationMenuTrigger>
                                 <NavigationMenuContent>
                                     <NavigationMenuLink href="/dashboard">Dashboard</NavigationMenuLink>
-                                    <NavigationMenuLink href="/tasks">Tasks</NavigationMenuLink>
-                                    <NavigationMenuLink href="/settings">Settings</NavigationMenuLink>
+                                    <NavigationMenuLink href="/calendar">Calendar</NavigationMenuLink>
                                 </NavigationMenuContent>
                             </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink href="/about">About</NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink href="/contact">Contact</NavigationMenuLink>
-                            </NavigationMenuItem>
+                            {
+                                user ? <></> :
+                                    <>
+                                        <NavigationMenuItem>
+                                            <NavigationMenuLink href="/about">About</NavigationMenuLink>
+                                        </NavigationMenuItem>
+                                        <NavigationMenuItem>
+                                            <NavigationMenuLink href="/contact">Contact</NavigationMenuLink>
+                                        </NavigationMenuItem>
+                                    </>
+                            }
+
                         </NavigationMenuList>
                     </NavigationMenu>
 

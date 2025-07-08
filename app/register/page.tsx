@@ -1,12 +1,14 @@
 'use client'
 import { Button } from '@/components/UI/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/UI/card'
-import React, { useActionState } from 'react'
+import React, { useActionState, useContext, useEffect } from 'react'
 import GoogleIcon from '@mui/icons-material/Google';
 import PasswordInput from '@/components/PasswordInput';
 import { Input } from '@/components/UI/input';
 import { endpoints } from '../api/route-helper';
 import axios from 'axios';
+import { UserContext } from '@/contexts/userContext';
+import { useRouter } from 'next/navigation';
 
 type State = {
     error?: string
@@ -47,6 +49,13 @@ async function handleRegister(prevState: State, formData: FormData): Promise<Sta
 
 export default function Register() {
     const [state, formAction] = useActionState(handleRegister, {});
+    const userContextInstance = useContext(UserContext);
+    const router = useRouter();
+    useEffect(() => {
+        if (userContextInstance.user) {
+            router.push("/dashboard");
+        }
+    }, [userContextInstance.user])
     return (
         <div className='text-left flex h-screen items-center justify-center bg-gray-100 w-screen'>
             <Card className="w-full max-w-md">
