@@ -86,9 +86,10 @@ export default function Dashboard() {
                                 plans?.map((plan) => {
                                     return (
                                         <div className={`${selectedPlan?.id === plan.id ? "bg-gray-200 shadow-md" : "bg-white shadow-sm"} rounded-lg p-4 hover:shadow-md transition flex items-center justify-between`} onClick={() => {
-
                                             setSelectedPlan(selectedPlan?.id === plan.id ? undefined : plan)
-                                        }}>
+                                        }}
+                                            key={plan.id}
+                                        >
                                             <div className='text-left'>
                                                 <h3 className="font-medium">{plan.title}</h3>
                                                 <p className="text-gray-500 text-sm">{plan.description}</p>
@@ -126,7 +127,7 @@ export default function Dashboard() {
                         {/* Task 列表 */}
                         {
                             selectedPlan?.Tasks.map((task) => {
-                                return <div className="overflow-y-auto">
+                                return <div className="overflow-y-auto" key={task.id}>
                                     <div className="bg-white rounded-lg shadow-sm p-3 flex justify-between items-center hover:shadow-md transition">
                                         <div>
                                             <h3 className="text-medium text-left">{task.title}</h3>
@@ -134,7 +135,7 @@ export default function Dashboard() {
                                         </div>
                                         <Badge variant="secondary">{task.status}</Badge>
                                     </div>
-                                </div>  
+                                </div>
                             })
                         }
 
