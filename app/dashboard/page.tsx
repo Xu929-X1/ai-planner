@@ -1,7 +1,6 @@
 'use client'
 import { Badge } from '@/components/UI/badge'
 import { Button } from '@/components/UI/button'
-import { Input } from '@/components/UI/input'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/UI/resizable'
 import { UserContext } from '@/contexts/userContext'
 import axios from 'axios'
@@ -41,7 +40,6 @@ export default function Dashboard() {
     const [plans, setPlans] = useState<PlanType[]>();
     const [selectedPlan, setSelectedPlan] = useState<PlanType>();
     const [isLoadingPlans, setIsLoadingPlans] = useState(false);
-    const [input, setInput] = useState<string>("");
     const userContext = useContext(UserContext);
     async function refreshPlans() {
         setIsLoadingPlans(true);
@@ -57,7 +55,7 @@ export default function Dashboard() {
             <div
                 className={`relative flex flex-wrap gap-2 bg-transparent backdrop-blur-md rounded-xl shadow-lg px-4 py-2 transition-all duration-300 hover:bg-white/40 hover:backdrop-blur-lg hover:-translate-y-0.5`}>
                 <form className="flex gap-2 px-4 w-full pb-2">
-                    <InputWithCount maxLength={500} placeholder="Have anything in mind? Talk to me!" className="flex-1" size={2} onChange={(e) => setInput(e.target.value)} />
+                    <InputWithCount maxLength={500} placeholder="Have anything in mind? Talk to me!" className="flex-1" size={2} />
                     <Button type="submit">Generate Plan</Button>
                 </form>
             </div>
