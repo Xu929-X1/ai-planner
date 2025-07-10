@@ -9,6 +9,8 @@ import React, { useContext, useEffect, useState } from 'react'
 import { endpoints } from '../api/route-helper'
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { Spinner } from '@/components/Spinner'
+import { InputWithCount } from '@/components/InputWithCount'
 export type TaskType = {
     id: number;
     title: string;
@@ -36,13 +38,16 @@ export type PlanType = {
 };
 
 export default function Dashboard() {
-    const [showChatBox, setShowChatBox] = useState(false);
     const [plans, setPlans] = useState<PlanType[]>();
     const [selectedPlan, setSelectedPlan] = useState<PlanType>();
+    const [isLoadingPlans, setIsLoadingPlans] = useState(false);
+    const [input, setInput] = useState<string>("");
     const userContext = useContext(UserContext);
     async function refreshPlans() {
+        setIsLoadingPlans(true);
         const res = await axios.get<PlanType[]>(endpoints.user.getAllPlans.get(userContext.user?.id || 0));
         setPlans(res.data);
+        setIsLoadingPlans(false);
     }
     useEffect(() => {
         refreshPlans();
@@ -50,61 +55,62 @@ export default function Dashboard() {
     return (
         <div className='w-screen h-full pt-16 overflow-hidden'>
             <div
-                className={`relative flex gap-2 bg-transparent backdrop-blur-md rounded-xl shadow-lg px-4 py-2 transition-all duration-300 hover:bg-white/40 hover:backdrop-blur-lg hover:-translate-y-0.5 ${showChatBox ? "" : "-translate-y-19/20 duration-300"}`}
-                onMouseEnter={() => setShowChatBox(true)}
-                onMouseLeave={() => setShowChatBox(false)}
-            >
-                <form className="flex items-center gap-2 px-4 w-full pb-2">
-                    <Input placeholder="Have anything in mind? Talk to me!" className="flex-1" size={2} />
-                    <Button type="submit">Send</Button>
+                className={`relative flex flex-wrap gap-2 bg-transparent backdrop-blur-md rounded-xl shadow-lg px-4 py-2 transition-all duration-300 hover:bg-white/40 hover:backdrop-blur-lg hover:-translate-y-0.5`}>
+                <form className="flex gap-2 px-4 w-full pb-2">
+                    <InputWithCount maxLength={500} placeholder="Have anything in mind? Talk to me!" className="flex-1" size={2} onChange={(e) => setInput(e.target.value)} />
+                    <Button type="submit">Generate Plan</Button>
                 </form>
-                <div
-                    className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-900 transition-opacity duration-300 ${showChatBox ? "opacity-0" : "opacity-100"}`}
-                ></div>
             </div>
 
             <ResizablePanelGroup direction="horizontal">
                 {/* 左侧 Plan Panel */}
                 <ResizablePanel defaultSize={40} minSize={20}>
-                    <div className="flex flex-col h-full p-4 bg-muted/50 border-r">
-                        {/* 顶部 header 工具区 */}
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-semibold">Plans</h2>
-                        </div>
+                    <Spinner spinning={isLoadingPlans}>
+                        <div className="flex flex-col h-full p-4 bg-muted/50 border-r">
+                            {/* 顶部 header 工具区 */}
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-semibold">Plans</h2>
+                            </div>
 
-                        {/* 可选 Filter / 标签 */}
-                        <div className="flex flex-wrap gap-2 mb-4">
-                            <Button variant="ghost" size="sm">All</Button>
-                            <Button variant="ghost" size="sm">In Progress</Button>
-                            <Button variant="ghost" size="sm">Completed</Button>
-                        </div>
+                            {/* 可选 Filter / 标签 */}
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                <Button variant="ghost" size="sm">All</Button>
+                                <Button variant="ghost" size="sm">In Progress</Button>
+                                <Button variant="ghost" size="sm">Completed</Button>
+                            </div>
 
-                        {/* Plan 列表 */}
-                        <div className="flex-1 overflow-y-auto space-y-2">
-                            {/* Plan 卡片 / 列表项 */}
-                            {
-                                plans?.map((plan) => {
-                                    return (
-                                        <div className={`${selectedPlan?.id === plan.id ? "bg-gray-200 shadow-md" : "bg-white shadow-sm"} rounded-lg p-4 hover:shadow-md transition flex items-center justify-between`} onClick={() => {
-                                            setSelectedPlan(selectedPlan?.id === plan.id ? undefined : plan)
-                                        }}
-                                            key={plan.id}
-                                        >
-                                            <div className='text-left'>
-                                                <h3 className="font-medium">{plan.title}</h3>
-                                                <p className="text-gray-500 text-sm">{plan.description}</p>
+                            {/* Plan 列表 */}
+                            <div className="flex-1 overflow-y-auto space-y-2">
+                                {/* Plan 卡片 / 列表项 */}
+                                {
+                                    plans?.map((plan) => {
+                                        return (
+                                            <div className={`${selectedPlan?.id === plan.id ? "bg-gray-200 shadow-md" : "bg-white shadow-sm"} rounded-lg p-4 hover:shadow-md transition flex items-center justify-between`} onClick={(e) => {
+                                                e.stopPropagation()
+                                                setSelectedPlan(selectedPlan?.id === plan.id ? undefined : plan)
+                                            }}
+                                                key={plan.id}
+                                            >
+                                                <div className='text-left'>
+                                                    <h3 className="font-medium">{plan.title}</h3>
+                                                    <p className="text-gray-500 text-sm">{plan.description}</p>
+                                                </div>
+                                                <div className='flex items-center justify-center gap-1 h-fit'>
+                                                    <Button variant="outline" size="sm" onClick={(e) => {
+                                                        e.stopPropagation()
+                                                    }} ><DriveFileRenameOutlineIcon fontSize='small' /></Button>
+                                                    <Button variant="destructive" size="sm" onClick={(e) => {
+                                                        e.stopPropagation();
+                                                    }} ><DeleteOutlineIcon fontSize='small' /></Button>
+                                                </div>
                                             </div>
-                                            <div className='flex items-center justify-center gap-1 h-fit'>
-                                                <Button variant="outline" size="sm"><DriveFileRenameOutlineIcon fontSize='small' /></Button>
-                                                <Button variant="destructive" size="sm"><DeleteOutlineIcon fontSize='small' /></Button>
-                                            </div>
-                                        </div>
-                                    )
-                                })
-                            }
-                            {/* ... repeat */}
+                                        )
+                                    })
+                                }
+                                {/* ... repeat */}
+                            </div>
                         </div>
-                    </div>
+                    </Spinner>
                 </ResizablePanel>
 
                 <ResizableHandle className="bg-gray-300 hover:border-gray-600 transition-colors duration-200" />
@@ -143,6 +149,6 @@ export default function Dashboard() {
                 </ResizablePanel>
             </ResizablePanelGroup>
 
-        </div>
+        </div >
     )
 }
