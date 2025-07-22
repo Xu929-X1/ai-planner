@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-export async function GET(req: NextRequest, { params }: { params: { planId: string } }) {
-
+export async function GET(req: NextRequest, context: { params: Promise<{ planId: string }> }) {
+    const params = await context.params;
     const plan = await prisma.plan.findUnique({
         where: {
             id: Number(params.planId)
@@ -14,7 +14,8 @@ export async function GET(req: NextRequest, { params }: { params: { planId: stri
     return NextResponse.json(plan);
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { planId: string } }) {
+export async function PUT(req: NextRequest, context: { params: Promise<{ planId: string }> }) {
+    const params = await context.params;
 
     const { title, description, priority, dueDate } = await req.json();
     const planId = Number(params.planId);
@@ -34,8 +35,8 @@ export async function PUT(req: NextRequest, { params }: { params: { planId: stri
     return NextResponse.json(updatedPlan);
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { planId: string } }) {
-
+export async function DELETE(req: NextRequest, context: { params: Promise<{ planId: string }> }) {
+    const params = await context.params;
     const planId = Number(params.planId);
 
     const deletedPlan = await prisma.plan.update({

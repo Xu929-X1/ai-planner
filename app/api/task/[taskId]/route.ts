@@ -1,8 +1,8 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: { taskId: string } }
-) {
+export async function GET(req: Request, context: { params: Promise<{ taskId: string }> }) {
+    const params = await context.params;
     const taskId = Number(params.taskId);
 
     const task = await prisma.task.findUnique({
@@ -20,8 +20,8 @@ export async function GET(req: Request, { params }: { params: { taskId: string }
     });
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { taskId: string } }
-) {
+export async function PUT(req: NextRequest, context: { params: Promise<{ taskId: string }> }) {
+    const params = await context.params;
     const taskId = Number(params.taskId);
     const { title, description, status, priority, dueDate } = await req.json();
 
@@ -41,8 +41,8 @@ export async function PUT(req: NextRequest, { params }: { params: { taskId: stri
     return NextResponse.json(updatedTask);
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { taskId: string } }
-) {
+export async function DELETE(req: NextRequest, context: { params: Promise<{ taskId: string }> }) {
+    const params = await context.params;
     const taskId = Number(params.taskId);
 
     const deletedTask = await prisma.task.update({
