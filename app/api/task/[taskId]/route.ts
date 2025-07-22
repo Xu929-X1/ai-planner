@@ -1,9 +1,9 @@
 import prisma from "@/lib/prisma";
-import { RouteContext } from "@/type/api";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: Request, context: RouteContext<string>) {
-    const taskId = Number(context.params.taskId);
+export async function GET(req: Request, { params }: { params: { taskId: string } }
+) {
+    const taskId = Number(params.taskId);
 
     const task = await prisma.task.findUnique({
         where: {
@@ -20,8 +20,9 @@ export async function GET(req: Request, context: RouteContext<string>) {
     });
 }
 
-export async function PUT(req: NextRequest, context: RouteContext<string>) {
-    const taskId = Number(context.params.taskId);
+export async function PUT(req: NextRequest, { params }: { params: { taskId: string } }
+) {
+    const taskId = Number(params.taskId);
     const { title, description, status, priority, dueDate } = await req.json();
 
     const updatedTask = await prisma.task.update({
@@ -40,8 +41,9 @@ export async function PUT(req: NextRequest, context: RouteContext<string>) {
     return NextResponse.json(updatedTask);
 }
 
-export async function DELETE(req: NextRequest, context: RouteContext<string>) {
-    const taskId = Number(context.params.taskId);
+export async function DELETE(req: NextRequest, { params }: { params: { taskId: string } }
+) {
+    const taskId = Number(params.taskId);
 
     const deletedTask = await prisma.task.update({
         where: {

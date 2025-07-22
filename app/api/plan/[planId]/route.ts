@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { RouteContext } from "@/type/api";
-export async function GET(req: NextRequest, context: RouteContext<string>) {
+export async function GET(req: NextRequest, { params }: { params: { planId: string } }) {
 
     const plan = await prisma.plan.findUnique({
         where: {
-            id: Number(context.params.planId)
+            id: Number(params.planId)
         },
         include: {
             Tasks: true,
@@ -15,10 +14,10 @@ export async function GET(req: NextRequest, context: RouteContext<string>) {
     return NextResponse.json(plan);
 }
 
-export async function PUT(req: NextRequest, context: RouteContext<string>) {
+export async function PUT(req: NextRequest, { params }: { params: { planId: string } }) {
 
     const { title, description, priority, dueDate } = await req.json();
-    const planId = Number(context.params.planId);
+    const planId = Number(params.planId);
 
     const updatedPlan = await prisma.plan.update({
         where: {
@@ -35,9 +34,9 @@ export async function PUT(req: NextRequest, context: RouteContext<string>) {
     return NextResponse.json(updatedPlan);
 }
 
-export async function DELETE(req: NextRequest, context: RouteContext<string>) {
+export async function DELETE(req: NextRequest, { params }: { params: { planId: string } }) {
 
-    const planId = Number(context.params.planId);
+    const planId = Number(params.planId);
 
     const deletedPlan = await prisma.plan.update({
         where: {
