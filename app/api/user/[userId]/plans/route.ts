@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import * as jose from "jose";
 import prisma from "@/lib/prisma";
+import { getUserInfo } from "@/app/api/utils";
 //get all tasks and plans under the user
 export async function GET(req: NextRequest) {
     try {
-        const token = req.cookies.get('auth_token');
-        if (!token) {
-            return new NextResponse("Unauthorized", {
-                status: 401
-            })
-        }
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'default_secret');
-        const payload = await jose.jwtVerify(token.value, secret);
-        const userId = payload.payload.id;
+        const userInfo = await getUserInfo(req);
+        const userId = userInfo.id;
         if (!userId) {
             return new NextResponse("Unrecognized user", {
                 status: 400

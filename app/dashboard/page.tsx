@@ -49,7 +49,7 @@ export default function Dashboard() {
     }
     useEffect(() => {
         refreshPlans();
-    }, [])
+    }, [userContext.user?.id]);
     return (
         <div className='w-screen h-full pt-16 overflow-hidden'>
             <div
