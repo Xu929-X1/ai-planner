@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-export async function GET(req: NextRequest, context: { params: { planId: string } }) {
+import { RouteContext } from "@/type/api";
+export async function GET(req: NextRequest, context: RouteContext<string>) {
 
     const plan = await prisma.plan.findUnique({
         where: {
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest, context: { params: { planId: string 
     return NextResponse.json(plan);
 }
 
-export async function PUT(req: NextRequest, context: { params: { planId: string } }) {
+export async function PUT(req: NextRequest, context: RouteContext<string>) {
 
     const { title, description, priority, dueDate } = await req.json();
     const planId = Number(context.params.planId);
@@ -34,7 +35,7 @@ export async function PUT(req: NextRequest, context: { params: { planId: string 
     return NextResponse.json(updatedPlan);
 }
 
-export async function DELETE(req: NextRequest, context: { params: { planId: string } }) {
+export async function DELETE(req: NextRequest, context: RouteContext<string>) {
 
     const planId = Number(context.params.planId);
 
