@@ -41,18 +41,6 @@ export default function NavBar() {
                                     <NavigationMenuLink href="/calendar">Calendar</NavigationMenuLink>
                                 </NavigationMenuContent>
                             </NavigationMenuItem>
-                            {
-                                user ? <></> :
-                                    <>
-                                        <NavigationMenuItem>
-                                            <NavigationMenuLink href="/about">About</NavigationMenuLink>
-                                        </NavigationMenuItem>
-                                        <NavigationMenuItem>
-                                            <NavigationMenuLink href="/contact">Contact</NavigationMenuLink>
-                                        </NavigationMenuItem>
-                                    </>
-                            }
-
                         </NavigationMenuList>
                     </NavigationMenu>
 

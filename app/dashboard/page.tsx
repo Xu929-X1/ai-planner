@@ -53,7 +53,7 @@ export default function Dashboard() {
     return (
         <div className='w-screen h-full pt-16 overflow-hidden'>
             <div
-                className={`relative flex flex-wrap gap-2 bg-transparent backdrop-blur-md rounded-xl shadow-lg px-4 py-2 transition-all duration-300 hover:bg-white/40 hover:backdrop-blur-lg hover:-translate-y-0.5`}>
+                className={`relative flex flex-wrap gap-2 bg-transparent backdrop-blur-md rounded-xl shadow-lg px-4 py-2 transition-all duration-30 hover:backdrop-blur-lg`}>
                 <form className="flex gap-2 px-4 w-full pb-2">
                     <InputWithCount
                         maxLength={500}
@@ -92,7 +92,7 @@ export default function Dashboard() {
                                         return (
                                             <div
                                                 className={`${selectedPlan?.id === plan.id ? "bg-primary/20 shadow-md" : "bg-card shadow-sm"
-                                                    } rounded-lg p-4 hover:shadow-md transition flex items-center justify-between`}
+                                                    } rounded-lg p-4 hover:shadow-md transition flex items-center justify-between border-accent-foreground`}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setSelectedPlan(selectedPlan?.id === plan.id ? undefined : plan);
@@ -120,9 +120,7 @@ export default function Dashboard() {
                         </div>
                     </Spinner>
                 </ResizablePanel>
-
                 <ResizableHandle className="hover:border-primary transition-colors duration-200" />
-
                 {/* 右侧 Tasks Panel */}
                 <ResizablePanel defaultSize={60} minSize={30}>
                     <div className="flex flex-col h-full p-4 bg-card gap-2">
@@ -141,7 +139,7 @@ export default function Dashboard() {
                         {/* Task 列表 */}
                         {
                             selectedPlan?.Tasks.map((task) => {
-                                return <div className="bg-card rounded-lg shadow-sm p-3 flex justify-between items-center hover:shadow-md transition">
+                                return <div className="bg-card rounded-lg shadow-sm p-3 flex justify-between items-center hover:shadow-md transition" key={task.id}>
                                     <div>
                                         <h3 className="font-medium text-card-foreground text-left">{task.title}</h3>
                                         <p className="text-muted text-sm">Due: {task.dueDate}</p>

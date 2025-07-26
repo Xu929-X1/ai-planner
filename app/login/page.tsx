@@ -74,7 +74,7 @@ export default function Login() {
             Enter your email below to login to your account
           </CardDescription>
           <CardAction>
-            <Button variant="link" onClick={handleSignUp}>Sign Up</Button>
+            <Button className='text-accent-foreground' variant="link" onClick={handleSignUp}>Sign Up</Button>
           </CardAction>
         </CardHeader>
         <form action={formAction}>
