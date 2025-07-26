@@ -55,8 +55,15 @@ export default function Dashboard() {
             <div
                 className={`relative flex flex-wrap gap-2 bg-transparent backdrop-blur-md rounded-xl shadow-lg px-4 py-2 transition-all duration-300 hover:bg-white/40 hover:backdrop-blur-lg hover:-translate-y-0.5`}>
                 <form className="flex gap-2 px-4 w-full pb-2">
-                    <InputWithCount maxLength={500} placeholder="Have anything in mind? Talk to me!" className="flex-1" size={2} />
-                    <Button type="submit">Generate Plan</Button>
+                    <InputWithCount
+                        maxLength={500}
+                        placeholder="Have anything in mind? Talk to me!"
+                        className="flex-1 bg-input border-border focus:border-primary"
+                        size={2}
+                    />
+                    <Button type="submit" className="bg-accent hover:bg-primary text-accent-foreground transition-colors">
+                        Generate Plan
+                    </Button>
                 </form>
             </div>
 
@@ -64,7 +71,7 @@ export default function Dashboard() {
                 {/* 左侧 Plan Panel */}
                 <ResizablePanel defaultSize={40} minSize={20}>
                     <Spinner spinning={isLoadingPlans}>
-                        <div className="flex flex-col h-full p-4 bg-muted/50 border-r">
+                        <div className="flex flex-col h-full p-4 bg-card border-r border-border">
                             {/* 顶部 header 工具区 */}
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="text-xl font-semibold">Plans</h2>
@@ -83,23 +90,26 @@ export default function Dashboard() {
                                 {
                                     plans?.map((plan) => {
                                         return (
-                                            <div className={`${selectedPlan?.id === plan.id ? "bg-gray-200 shadow-md" : "bg-white shadow-sm"} rounded-lg p-4 hover:shadow-md transition flex items-center justify-between`} onClick={(e) => {
-                                                e.stopPropagation()
-                                                setSelectedPlan(selectedPlan?.id === plan.id ? undefined : plan)
-                                            }}
+                                            <div
+                                                className={`${selectedPlan?.id === plan.id ? "bg-primary/20 shadow-md" : "bg-card shadow-sm"
+                                                    } rounded-lg p-4 hover:shadow-md transition flex items-center justify-between`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedPlan(selectedPlan?.id === plan.id ? undefined : plan);
+                                                }}
                                                 key={plan.id}
                                             >
                                                 <div className='text-left'>
-                                                    <h3 className="font-medium">{plan.title}</h3>
-                                                    <p className="text-gray-500 text-sm">{plan.description}</p>
+                                                    <h3 className="font-medium text-card-foreground">{plan.title}</h3>
+                                                    <p className="text-muted text-sm">{plan.description}</p>
                                                 </div>
                                                 <div className='flex items-center justify-center gap-1 h-fit'>
-                                                    <Button variant="outline" size="sm" onClick={(e) => {
-                                                        e.stopPropagation()
-                                                    }} ><DriveFileRenameOutlineIcon fontSize='small' /></Button>
-                                                    <Button variant="destructive" size="sm" onClick={(e) => {
-                                                        e.stopPropagation();
-                                                    }} ><DeleteOutlineIcon fontSize='small' /></Button>
+                                                    <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
+                                                        <DriveFileRenameOutlineIcon fontSize='small' />
+                                                    </Button>
+                                                    <Button variant="destructive" size="sm" onClick={(e) => e.stopPropagation()}>
+                                                        <DeleteOutlineIcon fontSize='small' />
+                                                    </Button>
                                                 </div>
                                             </div>
                                         )
@@ -111,11 +121,11 @@ export default function Dashboard() {
                     </Spinner>
                 </ResizablePanel>
 
-                <ResizableHandle className="bg-gray-300 hover:border-gray-600 transition-colors duration-200" />
+                <ResizableHandle className="hover:border-primary transition-colors duration-200" />
 
                 {/* 右侧 Tasks Panel */}
                 <ResizablePanel defaultSize={60} minSize={30}>
-                    <div className="flex flex-col h-full p-4 bg-muted/50 gap-2">
+                    <div className="flex flex-col h-full p-4 bg-card gap-2">
                         {/* Header */}
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-semibold">Tasks</h2>
@@ -131,14 +141,12 @@ export default function Dashboard() {
                         {/* Task 列表 */}
                         {
                             selectedPlan?.Tasks.map((task) => {
-                                return <div className="overflow-y-auto" key={task.id}>
-                                    <div className="bg-white rounded-lg shadow-sm p-3 flex justify-between items-center hover:shadow-md transition">
-                                        <div>
-                                            <h3 className="text-medium text-left">{task.title}</h3>
-                                            <p className="text-gray-500 text-sm">Due:{task.dueDate}</p>
-                                        </div>
-                                        <Badge variant="secondary">{task.status}</Badge>
+                                return <div className="bg-card rounded-lg shadow-sm p-3 flex justify-between items-center hover:shadow-md transition">
+                                    <div>
+                                        <h3 className="font-medium text-card-foreground text-left">{task.title}</h3>
+                                        <p className="text-muted text-sm">Due: {task.dueDate}</p>
                                     </div>
+                                    <Badge variant="secondary">{task.status}</Badge>
                                 </div>
                             })
                         }

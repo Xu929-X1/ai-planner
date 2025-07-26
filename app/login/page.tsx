@@ -66,7 +66,7 @@ export default function Login() {
   }
 
   return (
-    <div className="text-left flex h-screen items-center justify-center bg-gray-100 w-screen">
+    <div className="text-left flex h-screen items-center justify-center w-screen">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
@@ -114,9 +114,9 @@ export default function Login() {
             <Button type="submit" className="w-full" >
               Login
             </Button>
-            <Button variant="outline" className="w-full" onClick={handleLoginWithGoogle}>
+            <Button  className="w-full" onClick={handleLoginWithGoogle}>
               <div className="flex items-center">
-                <GoogleIcon className="transition-opacity duration-300 hover:opacity-70" />
+                <GoogleIcon className="transition-opacity duration-300 hover:opacity-100" />
                 <span className="ml-2">Login with Google</span>
               </div>
             </Button>

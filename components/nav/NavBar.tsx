@@ -29,7 +29,7 @@ export default function NavBar() {
     }
 
     return (
-        <div className="w-full h-auto absolute top-0 left-0 z-50 pt-4 px-4 border-b-2 border-gray-200 bg-white shadow-sm">
+        <div className="w-full h-auto absolute top-0 left-0 z-50 pt-4 px-4">
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <NavigationMenu className="w-full">

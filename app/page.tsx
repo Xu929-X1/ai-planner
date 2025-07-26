@@ -82,7 +82,7 @@ export default function Page() {
                 <div className="mb-8 transition-colors duration-500">
                     <h1
                         className={`text-4xl font-bold ${colorful
-                            ? 'text-slate-600 drop-shadow-[0_0_6px_rgba(0,255,255,0.4)]'
+                            ? 'text-accent-foreground drop-shadow-[0_0_6px_rgba(0,255,255,0.4)]'
                             : 'text-gray-600'
                             } transition-colors duration-500`}
                     >
@@ -90,15 +90,15 @@ export default function Page() {
                     </h1>
                     <p
                         className={`mt-2 ${colorful
-                            ? 'text-slate-500 drop-shadow-[0_0_4px_rgba(0,255,255,0.3)]'
+                            ? 'text-accent-foreground drop-shadow-[0_0_4px_rgba(0,255,255,0.3)]'
                             : 'text-gray-500'
                             } transition-colors duration-500`}
                     >
-                        Making plans has never been so easy.
+                        Making plans has never been this easy.
                     </p>
                 </div>
                 <Button
-                    className="bg-gray-600 text-white px-6 py-3 rounded-lg shadow-lg hover:brightness-125 transition duration-300"
+                    className="bg-gray-600 px-6 py-3 rounded-lg shadow-lg hover:brightness-125 transition duration-300"
                     onMouseEnter={() => setColorful(true)}
                     onMouseLeave={() => setColorful(false)}
                     onClick={() => router.push('/dashboard')}
