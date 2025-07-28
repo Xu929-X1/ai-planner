@@ -37,7 +37,7 @@ model Plan {
     priority    Int?
     userId      Int
     user        User      @relation(fields: [userId], references: [id])
-    Tasks       Task[] // ✅ Plan 下的任务
+    Tasks       Task[]
 }
 
 model Task {
@@ -51,6 +51,6 @@ model Task {
     priority    Int?
     userId      Int
     user        User      @relation(fields: [userId], references: [id])
-    planId      Int? // ✅ 可为空
+    planId      Int?
     plan        Plan?     @relation(fields: [planId], references: [id])
 }

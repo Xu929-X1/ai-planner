@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
         const plans = await prisma.plan.findMany(args);
         return NextResponse.json(plans);
     } catch (error) {
-        console.error("❌ JWT verification failed or DB error:", error);
-        return new NextResponse("Unauthorized", { status: 401 });
+        console.error("JWT verification failed or DB error:", error);
+        return new NextResponse("Internal Server Error", { status: 500 });
     }
 }

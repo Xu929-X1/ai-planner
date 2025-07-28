@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     });
     return NextResponse.json(plans);
 }
-
+//this is the endpoint to create a new plan without AI
 export async function POST(req: NextRequest) {
     //create a new plan
     const { title, description, priority, dueDate } = await req.json();
