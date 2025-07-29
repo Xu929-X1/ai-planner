@@ -15,42 +15,73 @@ enum StatusCd {
     CANCELLED
 }
 
+enum Role {
+    USER
+    ASSISTANT
+}
+
 model User {
-    id        Int      @id @default(autoincrement())
-    email     String   @unique
-    name      String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    password  String
-    Tasks     Task[]
-    Plan      Plan[]
+    id           Int            @id @default(autoincrement())
+    email        String         @unique
+    name         String?
+    createdAt    DateTime       @default(now())
+    updatedAt    DateTime       @updatedAt
+    password     String
+    Tasks        Task[]
+    Plan         Plan[]
+    Conversation Conversation[]
 }
 
 model Plan {
-    id          Int       @id @default(autoincrement())
-    title       String
-    description String?
-    status      StatusCd
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
-    dueDate     DateTime?
-    priority    Int?
-    userId      Int
-    user        User      @relation(fields: [userId], references: [id])
-    Tasks       Task[]
+    id           Int           @id @default(autoincrement())
+    title        String
+    description  String?
+    status       StatusCd
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    dueDate      DateTime?
+    priority     Int?
+    userId       Int
+    user         User          @relation(fields: [userId], references: [id])
+    Tasks        Task[]
+    Conversation Conversation?
 }
 
 model Task {
-    id          Int       @id @default(autoincrement())
-    title       String
-    description String?
-    status      StatusCd
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
-    dueDate     DateTime?
-    priority    Int?
-    userId      Int
-    user        User      @relation(fields: [userId], references: [id])
-    planId      Int?
-    plan        Plan?     @relation(fields: [planId], references: [id])
+    id           Int           @id @default(autoincrement())
+    title        String
+    description  String?
+    status       StatusCd
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    dueDate      DateTime?
+    priority     Int?
+    userId       Int
+    user         User          @relation(fields: [userId], references: [id])
+    planId       Int?
+    plan         Plan?         @relation(fields: [planId], references: [id])
+    Conversation Conversation?
+}
+
+model Conversation {
+    id        Int       @id @default(autoincrement())
+    userId    Int
+    user      User      @relation(fields: [userId], references: [id])
+    messages  Message[]
+    planId    Int?      @unique
+    plan      Plan?     @relation(fields: [planId], references: [id])
+    taskId    Int?      @unique
+    task      Task?     @relation(fields: [taskId], references: [id])
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+}
+
+model Message {
+    id             Int          @id @default(autoincrement())
+    conversationId Int
+    conversation   Conversation @relation(fields: [conversationId], references: [id])
+    role           Role
+    content        String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
 }

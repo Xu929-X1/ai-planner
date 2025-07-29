@@ -11,7 +11,6 @@ import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutli
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { Spinner } from '@/components/Spinner';
 import { InputWithCount } from '@/components/InputWithCount';
-import { useNotification } from '@/contexts/NotificationContext';
 import { ChatOverlay } from '@/components/ChatOverlay';
 
 export type TaskType = {
@@ -45,7 +44,7 @@ type Clarification = {
     message: string;
 };
 
-type PlanningAIResult = {
+export type PlanningAIResult = {
     message: string;
     data: {
         type: 'plan';
@@ -65,10 +64,7 @@ export default function Dashboard() {
     const [selectedPlan, setSelectedPlan] = useState<PlanType>();
     const [isLoadingPlans, setIsLoadingPlans] = useState(false);
     const [input, setInput] = useState('');
-    const [aiResult, setAIResult] = useState<PlanningAIResult | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isDialogOpen, setIsDialogOpen] = useState(true);
-    const notification = useNotification();
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
     const userContext = useContext(UserContext);
 
     async function refreshPlans() {
@@ -87,19 +83,7 @@ export default function Dashboard() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (!input.trim()) return;
-        setIsSubmitting(true);
-        try {
-            const res = await axios.post(endpoints.plan.aiGenerate.post, {
-                body: input,
-            });
-            console.log("AI Response:", res.data);
-            setAIResult(res.data);
-        } catch (e: unknown) {
-            const errorMessage = axios.isAxiosError(e) ? e.message : 'Unknown error';
-            notification.showNotification(`Plan generation failed: ${errorMessage}`, "error");
-        } finally {
-            setIsSubmitting(false);
-        }
+        setIsDialogOpen(true);
     }
 
     return (
@@ -114,48 +98,11 @@ export default function Dashboard() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                     />
-                    <Button type="submit" disabled={isSubmitting} className="bg-accent hover:bg-primary text-accent-foreground transition-colors">
-                        {isSubmitting ? 'Thinking...' : 'Generate Plan'}
+                    <Button type="submit" className="bg-accent hover:bg-primary text-accent-foreground transition-colors">
+                        Start Planning
                     </Button>
                 </form>
-                {aiResult?.data.type === 'clarification' && (
-                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-2 rounded">
-                        <p className="text-yellow-800 font-medium">Clarification Needed</p>
-                        <p className="text-yellow-700">{aiResult.data.message}</p>
-                    </div>
-                )}
-                {aiResult?.data.type === 'plan' && (
-                    <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mt-2 rounded space-y-2">
-                        <p className="text-blue-800 font-medium">Generated Plan</p>
-                        <p className="text-blue-700 whitespace-pre-line">{aiResult.data.plan}</p>
-                        <ul className="list-disc ml-6 text-blue-700 text-sm">
-                            {aiResult.data.tasks.map((task) => (
-                                <li key={task.id}>
-                                    {task.description} {task.dueDate && ` - Due: ${task.dueDate}`}
-                                </li>
-                            ))}
-                        </ul>
-                        <Button
-                            onClick={async () => {
-                                // try {
-                                //     await axios.post('/api/plan/save', {
-                                //         title: aiResult.data.plan.slice(0, 40),
-                                //         description: aiResult.data.plan,
-                                //         tasks: aiResult.data.tasks,
-                                //     });
-                                //     notification.showNotification("Plan saved successfully", "success");
-                                //     setAIResult(null);
-                                //     setInput('');
-                                //     refreshPlans();
-                                // } catch (e) {
-                                //     notification.showNotification("Failed to save plan", "error");
-                                // }
-                            }}
-                        >
-                            Save Plan
-                        </Button>
-                    </div>
-                )}
+
             </div>
 
             <ResizablePanelGroup direction="horizontal">
@@ -221,7 +168,7 @@ export default function Dashboard() {
                     </div>
                 </ResizablePanel>
             </ResizablePanelGroup>
-            <ChatOverlay open={isDialogOpen} onClose={() => { setIsDialogOpen(false) }} />
+            <ChatOverlay open={isDialogOpen} onClose={() => { setIsDialogOpen(false) }} initialInput={input} />
         </div>
     );
 }

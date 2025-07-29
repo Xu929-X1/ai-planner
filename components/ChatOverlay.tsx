@@ -1,14 +1,15 @@
-// components/ChatOverlay.tsx
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Dialog, DialogContent } from '@/components/UI/dialog'
 import { Button } from '@/components/UI/button'
 import { Textarea } from '@/components/UI/textarea'
 import { Sparkles } from 'lucide-react'
 import { endpoints } from '@/app/api/route-helper'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { DialogTitle } from '@radix-ui/react-dialog'
+import { PlanningAIResult } from '@/app/dashboard/page'
+import { useNotification } from '@/contexts/NotificationContext'
 
 interface ChatMessageUser {
     type: 'user';
@@ -39,10 +40,44 @@ type ChatMessage =
     | ChatMessageClarification
     | ChatMessagePlan
 
-export function ChatOverlay({ open, onClose }: { open: boolean, onClose: () => void, userInput?: string }) {
+export function ChatOverlay({ open, onClose, initialInput }: { open: boolean, onClose: () => void, initialInput?: string }) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
+    const notification = useNotification();
+    useEffect(() => {
+        if (initialInput) {
+            setMessages([{ type: 'user', content: initialInput }]);
+            try {
+                axios.post(endpoints.plan.aiGenerate.post, {
+                    body: input,
+                }).then((res) => {
+                    const json: PlanningAIResult = res.data;
+                    const { type } = json.data;
+
+                    let aiMessage: ChatMessage;
+                    if (type === 'clarification') {
+                        aiMessage = { type: 'clarification', message: json.data.message };
+                    } else if (type === 'plan') {
+                        aiMessage = { type: 'plan', plan: json.data.plan, tasks: json.data.tasks };
+                    } else {
+                        aiMessage = { type: 'ai', content: 'Sorry, I could not understand.' };
+                    }
+
+                    setMessages((prev) => [...prev, aiMessage]);
+                }).catch((err: AxiosError) => {
+                    notification.showNotification(`Error generating plan: ${err.message}`, 'error');
+                }).finally(() => {
+                    setLoading(false);
+                });
+            } catch (err) {
+                console.error("Error processing initial input:", err);
+                notification.showNotification(`Error processing input: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error');
+                setLoading(false);
+            }
+        }
+
+    }, [open]);
 
     const sendMessage = async () => {
         if (!input.trim()) return;
