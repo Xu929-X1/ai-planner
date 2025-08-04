@@ -72,6 +72,7 @@ model Conversation {
     plan      Plan?     @relation(fields: [planId], references: [id])
     taskId    Int?      @unique
     task      Task?     @relation(fields: [taskId], references: [id])
+    title     String
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
 }

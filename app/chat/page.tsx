@@ -1,6 +1,6 @@
 'use client'
 
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { PanelLeftClose, PanelLeftOpen, FilePenLine } from 'lucide-react'
 import { Button } from '@/components/UI/button'
 import { Textarea } from '@/components/UI/textarea'
 import { useEffect, useState } from 'react'
@@ -150,16 +150,28 @@ export default function Page() {
                             <PanelLeftClose className="w-4 h-4" />
                         </Button>
                     </div>
-                    {allConversations.map((conv) => (
-                        <div
-                            key={conv.id}
-                            onClick={() => setSelectedConversation(conv)}
-                            className={`p-2 rounded cursor-pointer text-start text-sm ${selectedConversation?.id === conv.id ? 'bg-muted' : 'hover:bg-muted'
-                                }`}
-                        >
-                            {conv.title}
+
+                    <div className="space-y-2">
+                        <div className='w-full flex justify-start items-center mb-2'>
+
+                            <Button
+                                className="hover:bg-muted text-muted-foreground "
+                                onClick={() => setSelectedConversation(null)}
+                            >
+                                <FilePenLine />
+                            </Button>
                         </div>
-                    ))}
+                        {allConversations.map((conv) => (
+                            <div
+                                key={conv.id}
+                                onClick={() => setSelectedConversation(conv)}
+                                className={`p-2 rounded cursor-pointer text-start text-sm ${selectedConversation?.id === conv.id ? 'bg-muted' : 'hover:bg-muted'
+                                    }`}
+                            >
+                                {conv.title}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
             {!sidebarVisible && (
