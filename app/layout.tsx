@@ -1,6 +1,6 @@
 import "@/app/globals.css";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import NavBar from "@/components/nav/NavBar";
+// import NavBar from "@/components/nav/NavBar";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import UserProvider from "@/contexts/userContext";
 import React from "react";
