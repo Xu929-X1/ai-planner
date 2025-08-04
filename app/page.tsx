@@ -101,7 +101,7 @@ export default function Page() {
                     className="bg-gray-600 px-6 py-3 rounded-lg shadow-lg hover:brightness-125 transition duration-300"
                     onMouseEnter={() => setColorful(true)}
                     onMouseLeave={() => setColorful(false)}
-                    onClick={() => router.push('/dashboard')}
+                    onClick={() => router.push('/chat')}
                 >
                     Get Started <ArrowForwardIcon />
                 </Button>

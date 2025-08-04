@@ -4,6 +4,7 @@ import NavBar from "@/components/nav/NavBar";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import UserProvider from "@/contexts/userContext";
 import React from "react";
+
 export const metadata = {
     title: {
         template: '%s | AI Planner',
@@ -15,16 +16,15 @@ export const metadata = {
 
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-
     return (
         <html lang={typeof navigator !== "undefined" ? navigator.language.split('-')[0] : "en"} >
             <body>
                 <ErrorBoundary>
                     <NotificationProvider>
                         <UserProvider>
-                            <header>
+                            {/* <header>
                                 <NavBar />
-                            </header>
+                            </header> */}
                             <main className="flex flex-col items-center justify-center p-4 text-center w-full h-screen overflow-x-hidden">
                                 {
                                     children

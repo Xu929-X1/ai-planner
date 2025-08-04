@@ -35,4 +35,9 @@ export const endpoints = {
             post: "/api/plan/ai"
         }
     },
+    chat: {
+        allChat: {
+            get: "/api/chat"
+        }
+    }
 }

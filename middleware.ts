@@ -26,5 +26,8 @@ export const config = {
         '/projects/:path*',
         '/tasks/:path*',
         '/plans/:path*',
+        '/chat/:path*',
+        '/plan/ai/:path*',
     ],
+
 }

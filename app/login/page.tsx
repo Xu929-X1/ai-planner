@@ -43,7 +43,7 @@ export default function Login() {
       });
       const status = res.status;
       if (status === 200) {
-        router.push("/dashboard");
+        router.push("/chat");
         userContextInstance.getUserInfo();
         return {};
       } else {
