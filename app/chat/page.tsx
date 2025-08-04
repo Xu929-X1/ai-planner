@@ -7,33 +7,29 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { endpoints } from '@/app/api/route-helper'
 
-interface ChatMessageUser {
-    type: 'user'
+type ChatMessageBase = {
+    id?: string // 可选：数据库 ID
+    createdAt?: string
+    role: "USER" | "ASSISTANT"
     content: string
 }
-interface ChatMessageAI {
-    type: 'ai'
-    content: string
+
+export type ChatMessage = ChatMessageBase & {
+    parsed?: ChatParsedContent
 }
-interface ChatMessageClarification {
-    type: 'clarification'
-    message: string
+
+type ChatParsedContent =
+    | { type: 'clarification'; message: string }
+    | { type: 'plan'; plan: string; tasks: Task[] }
+    | { type: "user", message: string }
+
+type Task = {
+    id: string
+    description: string
+    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+    dueDate?: string
 }
-interface ChatMessagePlan {
-    type: 'plan'
-    plan: string
-    tasks: {
-        description: string
-        id: string
-        status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
-        dueDate?: string
-    }[]
-}
-type ChatMessage =
-    | ChatMessageUser
-    | ChatMessageAI
-    | ChatMessageClarification
-    | ChatMessagePlan
+
 
 interface Conversation {
     id: number
@@ -79,7 +75,7 @@ export default function Page() {
 
     const sendMessage = async () => {
         if (!input.trim()) return
-        const newMessages: ChatMessage[] = [...messages, { type: 'user', content: input }]
+        const newMessages: ChatMessage[] = [...messages, { role: 'USER', content: input }]
         setMessages(newMessages)
         setInput('')
         setLoading(true)
@@ -94,11 +90,22 @@ export default function Page() {
 
         let aiMessage: ChatMessage
         if (type === 'clarification') {
-            aiMessage = { type: 'clarification', message: json.data.message }
+            aiMessage = {
+                role: 'ASSISTANT',
+                content: json.data.message,
+                parsed: { type: 'clarification', message: json.data.message }
+            }
         } else if (type === 'plan') {
-            aiMessage = { type: 'plan', plan: json.data.plan, tasks: json.data.tasks }
+            aiMessage = {
+                role: 'ASSISTANT',
+                content: json.data.plan,
+                parsed: { type: 'plan', plan: json.data.plan, tasks: json.data.tasks }
+            }
         } else {
-            aiMessage = { type: 'ai', content: 'Sorry, I could not understand.' }
+            aiMessage = {
+                role: 'ASSISTANT',
+                content: 'Sorry, I could not understand.'
+            }
         }
 
         setMessages((prev) => [...prev, aiMessage])
@@ -170,7 +177,6 @@ export default function Page() {
             <div className="flex-1 relative flex flex-col overflow-hidden">
 
                 {messages.length === 0 ? (
-                    // 初始状态：居中显示
                     <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
                         <h1 className="text-2xl font-semibold text-muted-foreground mb-4">
                             What do you want to plan today?
@@ -198,19 +204,57 @@ export default function Page() {
                     // 对话中状态
                     <>
                         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
-                            {/* Chat messages 显示区，先用 mock */}
-                            {messages.map((msg, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`text-sm px-3 py-2 rounded-md max-w-xl mx-auto whitespace-pre-wrap ${msg.type === 'user' ? 'bg-muted text-right' : 'bg-secondary text-left'
-                                        }`}
-                                >
-                                    {msg.type === 'user' ? msg.content : 'AI: ' + ('message' in msg ? msg.message : 'content' in msg ? msg.content : msg.plan)}
+                            {messages.map((msg, idx) => {
+                                const isUser = msg.role === 'USER';
+                                let content: ChatParsedContent;
+                                try {
+                                    content = JSON.parse(msg.content || '{}') as ChatParsedContent;
+                                } catch (error) {
+                                    console.error('Error parsing message content:', error);
+                                    content = { type: "user", message: msg.content || "" };
+                                }
+                                return (
+                                    <>
+                                        <div
+                                            key={idx}
+                                            className={`flex items-start space-x-2 ${isUser ? 'justify-end' : 'justify-start'}`}
+                                        >
+                                            <div
+                                                className={`max-w-md p-3 rounded-lg text-sm ${isUser ? 'bg-muted text-white' : 'bg-gray-100 text-gray-800'
+                                                    }`}
+                                            >
+                                                {content.type === 'plan' ? (
+                                                    <div>
+                                                        <strong>Plan:</strong> {content.plan}
+                                                        <ul className="mt-2 space-y-1">
+                                                            {content.tasks.map((task) => (
+                                                                <li key={task.id} className="flex items-center">
+                                                                    <span className={`inline-block w-2 h-2 mr-2 rounded-full ${task.status === 'COMPLETED' ? 'bg-green-500' : task.status === 'IN_PROGRESS' ? 'bg-yellow-500' : 'bg-red-500'}`}></span>
+                                                                    {task.description} {task.dueDate && `(${new Date(task.dueDate).toLocaleDateString()})`}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+
+                                                ) : (
+                                                    <div className="whitespace-pre-wrap text-start">
+                                                        {content.message}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </>
+                                )
+                            })}
+                            {loading && (
+                                <div className="flex items-start space-x-2 justify-start">
+                                    <div className="max-w-md p-3 rounded-lg text-sm text-gray-800 animate-pulse">
+                                        <span className="italic text-muted-foreground">Thinking...</span>
+                                    </div>
                                 </div>
-                            ))}
+                            )}
                         </div>
 
-                        {/* 输入框固定底部 */}
                         <div className="w-full border-t bg-background px-4 py-3 flex gap-2 items-center">
                             <Textarea
                                 rows={1}
