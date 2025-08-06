@@ -3,4 +3,5 @@ export const pathHelper = {
     register: "/register",
     home: "/",
     dashboard: "/dashboard",
+    chat: "/chat",
 }

@@ -6,6 +6,7 @@ import { Textarea } from '@/components/UI/textarea'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { endpoints } from '@/app/api/route-helper'
+import { safeParseContent } from '@/lib/utils'
 
 type ChatMessageBase = {
     id?: string // 可选：数据库 ID
@@ -18,7 +19,7 @@ export type ChatMessage = ChatMessageBase & {
     parsed?: ChatParsedContent
 }
 
-type ChatParsedContent =
+export type ChatParsedContent =
     | { type: 'clarification'; message: string }
     | { type: 'plan'; plan: string; tasks: Task[] }
     | { type: "user", message: string }
@@ -125,20 +126,20 @@ export default function Page() {
         }
     }
 
+
+
     return (
         <div className="flex h-screen w-full overflow-hidden">
             <div
                 className={`
           hidden md:block transition-all duration-300 border-r bg-background
           ${sidebarVisible ? 'w-64' : 'w-0'}
-        `}
-            >
+        `}>
                 <div
                     className={`
             h-full overflow-y-auto px-4 py-4 transition-opacity duration-300
             ${sidebarVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-          `}
-                >
+          `}>
                     <div className="flex justify-between items-center mb-4 text-start">
                         <h2 className="text-sm font-semibold text-muted">Conversations</h2>
                         <Button
@@ -218,13 +219,7 @@ export default function Page() {
                         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
                             {messages.map((msg, idx) => {
                                 const isUser = msg.role === 'USER';
-                                let content: ChatParsedContent;
-                                try {
-                                    content = JSON.parse(msg.content || '{}') as ChatParsedContent;
-                                } catch (error) {
-                                    console.error('Error parsing message content:', error);
-                                    content = { type: "user", message: msg.content || "" };
-                                }
+                                const content = safeParseContent(msg.content);
                                 return (
                                     <>
                                         <div
@@ -249,7 +244,7 @@ export default function Page() {
                                                     </div>
 
                                                 ) : (
-                                                    <div className="whitespace-pre-wrap text-start">
+                                                    <div className="whitespace-pre-wrap text-start" key={idx}>
                                                         {content.message}
                                                     </div>
                                                 )}

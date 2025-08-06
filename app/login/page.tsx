@@ -26,7 +26,7 @@ export default function Login() {
 
   useEffect(() => {
     if (userContextInstance.user) {
-      router.push("/dashboard");
+      router.push("/chat");
     }
   }, [userContextInstance.user])
 
@@ -114,7 +114,7 @@ export default function Login() {
             <Button type="submit" className="w-full" >
               Login
             </Button>
-            <Button  className="w-full" onClick={handleLoginWithGoogle}>
+            <Button className="w-full" onClick={handleLoginWithGoogle}>
               <div className="flex items-center">
                 <GoogleIcon className="transition-opacity duration-300 hover:opacity-100" />
                 <span className="ml-2">Login with Google</span>
