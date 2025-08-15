@@ -9,7 +9,7 @@ import { endpoints } from '@/app/api/route-helper'
 import { safeParseContent } from '@/lib/utils'
 
 type ChatMessageBase = {
-    id?: string // 可选：数据库 ID
+    id?: string
     createdAt?: string
     role: "USER" | "ASSISTANT"
     content: string
@@ -71,7 +71,7 @@ export default function Page() {
 
     async function getAllConversations() {
         const res = await axios.get<Conversation[]>(endpoints.chat.allChat.get)
-        setAllConversations(res.data)
+        setAllConversations(res.data.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()))
     }
 
     const sendMessage = async () => {
@@ -214,7 +214,6 @@ export default function Page() {
                         </div>
                     </div>
                 ) : (
-                    // 对话中状态
                     <>
                         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
                             {messages.map((msg, idx) => {

@@ -64,17 +64,19 @@ model Task {
 }
 
 model Conversation {
-    id        Int       @id @default(autoincrement())
+    id        Int        @id @default(autoincrement())
     userId    Int
-    user      User      @relation(fields: [userId], references: [id])
+    user      User       @relation(fields: [userId], references: [id])
+    sessionId String     @unique
     messages  Message[]
-    planId    Int?      @unique
-    plan      Plan?     @relation(fields: [planId], references: [id])
-    taskId    Int?      @unique
-    task      Task?     @relation(fields: [taskId], references: [id])
+    planId    Int?       @unique
+    plan      Plan?      @relation(fields: [planId], references: [id])
+    taskId    Int?       @unique
+    task      Task?      @relation(fields: [taskId], references: [id])
     title     String
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+    AgentRun  AgentRun[]
 }
 
 model Message {
@@ -85,4 +87,21 @@ model Message {
     content        String
     createdAt      DateTime     @default(now())
     updatedAt      DateTime     @updatedAt
+}
+
+model AgentRun {
+    id             String       @id @default(cuid())
+    conversationId Int
+    input          String
+    rawOutput      String
+    parsedType     ParsedType
+    createdAt      DateTime     @default(now())
+    Conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+enum ParsedType {
+    PLAN
+    TASK
+    MESSAGE
+    ERROR
 }
