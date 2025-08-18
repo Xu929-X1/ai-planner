@@ -4,7 +4,7 @@ import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader,
 import { Input } from '@/components/UI/input'
 import { Label } from '@/components/UI/label'
 import { useRouter } from 'next/navigation'
-import React, { useActionState, useContext } from 'react'
+import React, { useActionState, useContext, useEffect } from 'react'
 import GoogleIcon from '@mui/icons-material/Google';
 import axios from 'axios';
 import { endpoints } from '../api/route-helper'
@@ -24,13 +24,18 @@ export default function Login() {
   const router = useRouter();
   const userContextInstance = useContext(UserContext)
 
+  useEffect(() => {
+    if (userContextInstance.user) {
+      router.push("/chat");
+    }
+  }, [userContextInstance.user])
+
   function handleSignUp() {
     router.push('/register');
   }
   async function handleLogin(prevState: State, formData: FormData): Promise<State> {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
-
     try {
       const res = await axios.post(endpoints.auth.login.post, {
         email,
@@ -38,7 +43,7 @@ export default function Login() {
       });
       const status = res.status;
       if (status === 200) {
-        router.push("/dashboard");
+        router.push("/chat");
         userContextInstance.getUserInfo();
         return {};
       } else {
@@ -61,7 +66,7 @@ export default function Login() {
   }
 
   return (
-    <div className="text-left flex h-screen items-center justify-center bg-gray-100 w-screen">
+    <div className="text-left flex h-screen items-center justify-center w-screen">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
@@ -69,7 +74,7 @@ export default function Login() {
             Enter your email below to login to your account
           </CardDescription>
           <CardAction>
-            <Button variant="link" onClick={handleSignUp}>Sign Up</Button>
+            <Button className='text-accent-foreground' variant="link" onClick={handleSignUp}>Sign Up</Button>
           </CardAction>
         </CardHeader>
         <form action={formAction}>
@@ -109,9 +114,9 @@ export default function Login() {
             <Button type="submit" className="w-full" >
               Login
             </Button>
-            <Button variant="outline" className="w-full" onClick={handleLoginWithGoogle}>
+            <Button className="w-full" onClick={handleLoginWithGoogle}>
               <div className="flex items-center">
-                <GoogleIcon className="transition-opacity duration-300 hover:opacity-70" />
+                <GoogleIcon className="transition-opacity duration-300 hover:opacity-100" />
                 <span className="ml-2">Login with Google</span>
               </div>
             </Button>

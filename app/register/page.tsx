@@ -1,12 +1,14 @@
 'use client'
 import { Button } from '@/components/UI/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/UI/card'
-import React, { useActionState } from 'react'
+import React, { useActionState, useContext, useEffect } from 'react'
 import GoogleIcon from '@mui/icons-material/Google';
 import PasswordInput from '@/components/PasswordInput';
 import { Input } from '@/components/UI/input';
 import { endpoints } from '../api/route-helper';
 import axios from 'axios';
+import { UserContext } from '@/contexts/userContext';
+import { useRouter } from 'next/navigation';
 
 type State = {
     error?: string
@@ -47,8 +49,15 @@ async function handleRegister(prevState: State, formData: FormData): Promise<Sta
 
 export default function Register() {
     const [state, formAction] = useActionState(handleRegister, {});
+    const userContextInstance = useContext(UserContext);
+    const router = useRouter();
+    useEffect(() => {
+        if (userContextInstance.user) {
+            router.push("/dashboard");
+        }
+    }, [userContextInstance.user])
     return (
-        <div className='text-left flex h-screen items-center justify-center bg-gray-100 w-screen'>
+        <div className='text-left flex h-screen items-center justify-center w-screen'>
             <Card className="w-full max-w-md">
                 <CardHeader>
                     <h2 className="text-2xl font-bold">Sign Up</h2>
@@ -103,12 +112,11 @@ export default function Register() {
                         >
                             Sign Up
                         </Button>
-                        <Button
-                            variant="outline"
-                            type="button"
-                            className='w-full'
-                        >
-                            <GoogleIcon />Login with Google
+                        <Button className="w-full">
+                            <div className="flex items-center">
+                                <GoogleIcon className="transition-opacity duration-300 hover:opacity-100" />
+                                <span className="ml-2">Login with Google</span>
+                            </div>
                         </Button>
                     </CardFooter>
                 </form>
