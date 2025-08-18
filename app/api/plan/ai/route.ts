@@ -3,6 +3,7 @@ import { generateTitleFromMessage } from "@/lib/ai/generateTitleFromMsg"
 import prisma from "@/lib/prisma"
 import { NextRequest } from "next/server"
 import { getUserInfo } from "../../utils"
+import { Prisma } from "@/app/generated/prisma"
 
 export async function POST(req: NextRequest) {
     const request = await req.json()
@@ -39,25 +40,36 @@ export async function POST(req: NextRequest) {
             }
         })
     } else {
-        const title = await generateTitleFromMessage(prompt)
-        conversation = await prisma.conversation.create({
-            data: {
-                userId: Number(user.id),
-                title,
-                messages: {
-                    create: [
-                        {
-                            role: "USER",
-                            content: prompt
-                        },
-                        {
-                            role: "ASSISTANT",
-                            content: JSON.stringify(agentResponse)
+        const title = await generateTitleFromMessage(prompt); // 或者先用占位符，异步更新标题
+
+        for (let attempt = 0; attempt < 3; attempt++) {
+            const sessionId = crypto.randomUUID();
+            try {
+                const conversation = await prisma.conversation.create({
+                    data: {
+                        userId: Number(user.id),
+                        title,
+                        sessionId,
+                        messages: {
+                            create: [
+                                { role: "USER", content: prompt },
+                                { role: "ASSISTANT", content: JSON.stringify(agentResponse) }
+                            ]
                         }
-                    ]
+                    }
+                });
+                return conversation;
+            } catch (e: unknown) {
+                if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                    if (e.code === "P2002") {
+                        continue;
+                    }
+                } else {
+                    throw e; // 其他错误继续抛
                 }
             }
-        })
+        }
+        throw new Error("Failed to allocate unique sessionId after 3 attempts.");
     }
 
     return new Response(
