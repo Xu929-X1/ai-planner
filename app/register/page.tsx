@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 
 type State = {
     error?: string
+    success?: string
 }
 
 async function handleRegister(prevState: State, formData: FormData): Promise<State> {
@@ -35,7 +36,7 @@ async function handleRegister(prevState: State, formData: FormData): Promise<Sta
         });
 
         if (response.status === 200) {
-            return {};
+            return { success: 'Registration successful' };
         } else {
             return { error: 'Registration failed, please try again.' };
         }
@@ -53,9 +54,16 @@ export default function Register() {
     const router = useRouter();
     useEffect(() => {
         if (userContextInstance.user) {
-            router.push("/dashboard");
+            router.push("/chat");
         }
     }, [userContextInstance.user])
+
+    useEffect(() => {
+        if (state.success != null) {
+            router.push("/login");
+        }
+    }, [state])
+
     return (
         <div className='text-left flex h-screen items-center justify-center w-screen'>
             <Card className="w-full max-w-md">
