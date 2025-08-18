@@ -6,83 +6,92 @@ import { getUserInfo } from "../../utils"
 import { Prisma } from "@/app/generated/prisma"
 
 export async function POST(req: NextRequest) {
-    const request = await req.json()
-    const prompt = request.body
-    const conversationId = request.conversationId
-    if (typeof prompt !== "string") {
-        return new Response(
-            JSON.stringify({ error: "Invalid request: prompt must be a string" }),
-            { status: 400 }
-        )
-    }
+    try {
 
-    const user = await getUserInfo(req)
-    const agentResponse = await runPlanAgent(prompt)
+        const request = await req.json()
+        const prompt = request.body
+        const conversationId = request.conversationId
+        if (typeof prompt !== "string") {
+            return new Response(
+                JSON.stringify({ error: "Invalid request: prompt must be a string" }),
+                { status: 400 }
+            )
+        }
 
-    let conversation
+        const user = await getUserInfo(req)
+        const agentResponse = await runPlanAgent(prompt)
 
-    if (conversationId) {
-        conversation = await prisma.conversation.update({
-            where: { id: Number(conversationId) },
-            data: {
-                messages: {
-                    create: [
+
+        if (conversationId) {
+
+            const conversation = await prisma.conversation.update({
+                where: { id: Number(conversationId) },
+                data: {
+                    messages: {
+                        create: [
+                            {
+                                role: "USER",
+                                content: prompt
+                            },
+                            {
+                                role: "ASSISTANT",
+                                content: JSON.stringify(agentResponse)
+                            }
+                        ]
+                    }
+                }
+            })
+            return Response.json(
+                {
+                    message: "Appended to existing conversation",
+                    data: agentResponse,
+                    conversationId: conversation.id,
+                },
+                { status: 200 }
+            );
+        } else {
+            const title = await generateTitleFromMessage(prompt);
+
+            for (let attempt = 0; attempt < 3; attempt++) {
+                const sessionId = crypto.randomUUID();
+                try {
+                    const conversation = await prisma.conversation.create({
+                        data: {
+                            userId: Number(user.id),
+                            title,
+                            sessionId,
+                            messages: {
+                                create: [
+                                    { role: "USER", content: prompt },
+                                    { role: "ASSISTANT", content: JSON.stringify(agentResponse) }
+                                ]
+                            }
+                        }
+                    });
+                    return Response.json(
                         {
-                            role: "USER",
-                            content: prompt
+                            message: "Created new conversation",
+                            data: agentResponse,
+                            conversationId: conversation.id,
+                            sessionId: conversation.sessionId,
                         },
-                        {
-                            role: "ASSISTANT",
-                            content: JSON.stringify(agentResponse)
+                        { status: 201 }
+                    );
+                } catch (e: unknown) {
+                    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                        if (e.code === "P2002") {// p2002 is unique constraint violation
+                            continue;
                         }
-                    ]
+                    } else {
+                        throw e;
+                    }
                 }
             }
-        })
-    } else {
-        const title = await generateTitleFromMessage(prompt); // 或者先用占位符，异步更新标题
-
-        for (let attempt = 0; attempt < 3; attempt++) {
-            const sessionId = crypto.randomUUID();
-            try {
-                const conversation = await prisma.conversation.create({
-                    data: {
-                        userId: Number(user.id),
-                        title,
-                        sessionId,
-                        messages: {
-                            create: [
-                                { role: "USER", content: prompt },
-                                { role: "ASSISTANT", content: JSON.stringify(agentResponse) }
-                            ]
-                        }
-                    }
-                });
-                return conversation;
-            } catch (e: unknown) {
-                if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                    if (e.code === "P2002") {
-                        continue;
-                    }
-                } else {
-                    throw e; // 其他错误继续抛
-                }
-            }
+            throw new Error("Failed to allocate unique sessionId after 3 attempts.");
         }
-        throw new Error("Failed to allocate unique sessionId after 3 attempts.");
+
+    } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : "Unknown error";
+        return Response.json({ error: message }, { status: 500 });
     }
-
-    return new Response(
-        JSON.stringify({
-            message: "Prompt received successfully",
-            data: agentResponse,
-            conversationId: conversation.id
-        }),
-        {
-            status: 200,
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }
-    )
 }
