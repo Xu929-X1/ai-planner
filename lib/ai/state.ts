@@ -28,11 +28,11 @@ export async function getConvoContext(sessionId: string, userId: number, title?:
             take: lastMessageCount,
         }),
         prisma.plan.findFirst({
-            where: { Conversation: { id: convo.id } },
+            where: { conversationId: convo.id },
             include: { Tasks: true }
         }),
         prisma.task.findMany({
-            where: { Conversation: { id: convo.id } },
+            where: { conversationId: convo.id },
             orderBy: { createdAt: 'asc' }
         })
     ]);
@@ -52,4 +52,11 @@ export async function persistRun(opts: {
 
 export async function saveMessages(convId: number, from: "USER" | "ASSISTANT", msg: string) {
     await prisma.message.create({ data: { conversationId: convId, role: from, content: msg } });
-} 
+}
+
+export async function extractRunsFromConversation(conversationId: number) {
+    return prisma.agentRun.findMany({
+        where: { conversationId },
+        orderBy: { createdAt: 'asc' }
+    });
+}

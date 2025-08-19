@@ -33,34 +33,41 @@ model User {
 }
 
 model Plan {
-    id           Int           @id @default(autoincrement())
-    title        String
-    description  String?
-    status       StatusCd
-    createdAt    DateTime      @default(now())
-    updatedAt    DateTime      @updatedAt
-    dueDate      DateTime?
-    priority     Int?
-    userId       Int
-    user         User          @relation(fields: [userId], references: [id])
-    Tasks        Task[]
-    Conversation Conversation?
+    id             Int          @id @default(autoincrement())
+    title          String
+    description    String?
+    status         StatusCd
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    dueDate        DateTime?
+    priority       Int?
+    userId         Int
+    user           User         @relation(fields: [userId], references: [id])
+    Tasks          Task[]
+    conversationId Int          @unique
+    conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+    @@index([conversationId])
 }
 
 model Task {
-    id           Int           @id @default(autoincrement())
-    title        String
-    description  String?
-    status       StatusCd
-    createdAt    DateTime      @default(now())
-    updatedAt    DateTime      @updatedAt
-    dueDate      DateTime?
-    priority     Int?
-    userId       Int
-    user         User          @relation(fields: [userId], references: [id])
-    planId       Int?
-    plan         Plan?         @relation(fields: [planId], references: [id])
-    Conversation Conversation?
+    id             Int          @id @default(autoincrement())
+    title          String
+    description    String?
+    status         StatusCd
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    dueDate        DateTime?
+    priority       Int?
+    userId         Int
+    user           User         @relation(fields: [userId], references: [id])
+    planId         Int?
+    plan           Plan?        @relation(fields: [planId], references: [id])
+    conversationId Int          @unique
+    conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+    @@index([conversationId])
+    @@index([planId])
 }
 
 model Conversation {
@@ -70,9 +77,9 @@ model Conversation {
     sessionId String     @unique
     messages  Message[]
     planId    Int?       @unique
-    plan      Plan?      @relation(fields: [planId], references: [id])
+    plan      Plan?
     taskId    Int?       @unique
-    task      Task?      @relation(fields: [taskId], references: [id])
+    task      Task?
     title     String
     createdAt DateTime   @default(now())
     updatedAt DateTime   @updatedAt
