@@ -1,7 +1,7 @@
 import { StatusCd } from '../app/generated/prisma/index'
 import bcrypt from 'bcryptjs'
 import prisma from '../lib/prisma'
-
+// this is depracated, will be removed in the future
 async function main() {
     // 创建一个用户
     const user = await prisma.user.upsert({
@@ -23,6 +23,7 @@ async function main() {
             userId: user.id,
             dueDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 三个月后
             priority: 1,
+            conversationId: 0, // 假设没有关联的对话
         },
     })
     console.log(`Created plan: ${plan.title} with ID: ${plan.id}`)
@@ -36,6 +37,7 @@ async function main() {
                 planId: plan.id,
                 dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
                 priority: 2,
+                conversationId: 0, // 假设没有关联的对话
             },
             {
                 title: '第 2 周：力量训练',
@@ -44,6 +46,7 @@ async function main() {
                 planId: plan.id,
                 dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
                 priority: 2,
+                conversationId: 0, // 假设没有关联的对话
             },
         ],
     })
@@ -57,6 +60,7 @@ async function main() {
                 userId: user.id,
                 dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
                 priority: 3,
+                conversationId: 0, // 假设没有关联的对话
             },
             {
                 title: '更新个人博客',
@@ -64,6 +68,7 @@ async function main() {
                 userId: user.id,
                 dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
                 priority: 2,
+                conversationId: 0, // 假设没有关联的对话
             },
         ],
     })
