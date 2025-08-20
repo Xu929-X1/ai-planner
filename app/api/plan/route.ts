@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 //this is the endpoint to create a new plan without AI
 export async function POST(req: NextRequest) {
     //create a new plan
-    const { title, description, priority, dueDate } = await req.json();
+    const { title, description, priority, dueDate, conversationId } = await req.json();
     const userInfo = await getUserInfo(req);
     const newPlan = await prisma.plan.create({
         data: {
@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
             dueDate: dueDate ? new Date(dueDate) : null,
             userId: Number(userInfo.id),
             status: "IN_PROGRESS", // default status
+            conversationId: conversationId ? Number(conversationId) : 0,
         },
     });
 

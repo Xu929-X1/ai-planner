@@ -7,7 +7,6 @@ import { Prisma } from "@/app/generated/prisma"
 
 export async function POST(req: NextRequest) {
     try {
-
         const request = await req.json()
         const prompt = request.body
         const conversationId = request.conversationId
@@ -20,10 +19,7 @@ export async function POST(req: NextRequest) {
 
         const user = await getUserInfo(req)
         const agentResponse = await runPlanAgent(prompt)
-
-
         if (conversationId) {
-
             const conversation = await prisma.conversation.update({
                 where: { id: Number(conversationId) },
                 data: {
@@ -51,7 +47,6 @@ export async function POST(req: NextRequest) {
             );
         } else {
             const title = await generateTitleFromMessage(prompt);
-
             for (let attempt = 0; attempt < 3; attempt++) {
                 const sessionId = crypto.randomUUID();
                 try {

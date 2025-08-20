@@ -55,7 +55,7 @@ export async function saveMessages(convId: number, from: "USER" | "ASSISTANT", m
 }
 
 export async function extractRunsFromConversation(conversationId: number) {
-    return prisma.agentRun.findMany({
+    return await prisma.agentRun.findMany({
         where: { conversationId },
         orderBy: { createdAt: 'asc' }
     });
