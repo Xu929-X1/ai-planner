@@ -1,52 +1,30 @@
-import { runPlanAgent } from "@/lib/ai/Agents"
-import { generateTitleFromMessage } from "@/lib/ai/generateTitleFromMsg"
-import prisma from "@/lib/prisma"
-import { NextRequest } from "next/server"
-import { getUserInfo } from "../../utils"
-import { Prisma } from "@/app/generated/prisma"
+import { NextRequest } from "next/server";
+import { getUserInfo } from "../../utils";
+import { runPlanAgent, runPlannerWithAutoSummary } from "@/lib/ai/Agents";
+import { getConvoContext, persistRun, saveMessages } from "@/lib/ai/state";
+import { generateTitleFromMessage } from "@/lib/ai/generateTitleFromMsg";
+import { Prisma } from "@/app/generated/prisma";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
     try {
-        const request = await req.json()
-        const prompt = request.body
-        const conversationId = request.conversationId
-        if (typeof prompt !== "string") {
-            return new Response(
-                JSON.stringify({ error: "Invalid request: prompt must be a string" }),
-                { status: 400 }
-            )
+        const request = await req.json();
+        const userPrompt = request.body;
+        const conversationId = request.conversationId;
+        const sessionId = request.sessionId;
+        if (typeof userPrompt !== 'string') {
+            return new Response('Invalid input', { status: 400 });
         }
-
-        const user = await getUserInfo(req)
-        const agentResponse = await runPlanAgent(prompt)
-        if (conversationId) {
-            const conversation = await prisma.conversation.update({
-                where: { id: Number(conversationId) },
-                data: {
-                    messages: {
-                        create: [
-                            {
-                                role: "USER",
-                                content: prompt
-                            },
-                            {
-                                role: "ASSISTANT",
-                                content: JSON.stringify(agentResponse)
-                            }
-                        ]
-                    }
-                }
-            })
-            return Response.json(
-                {
-                    message: "Appended to existing conversation",
-                    data: agentResponse,
-                    conversationId: conversation.id,
-                },
-                { status: 200 }
-            );
+        const user = await getUserInfo(req);
+        let agentResponse;
+        if (sessionId) {
+            const convoContext = await getConvoContext(sessionId, Number(user.id));
+            const agentRunArray = convoContext.agentRuns;
+            agentResponse = await runPlannerWithAutoSummary(userPrompt, agentRunArray);
         } else {
-            const title = await generateTitleFromMessage(prompt);
+            const title = await generateTitleFromMessage(userPrompt);
+            //skip the summary step, no sessionId means no previous context
+            agentResponse = await runPlanAgent(userPrompt, "");
             for (let attempt = 0; attempt < 3; attempt++) {
                 const sessionId = crypto.randomUUID();
                 try {
@@ -57,7 +35,7 @@ export async function POST(req: NextRequest) {
                             sessionId,
                             messages: {
                                 create: [
-                                    { role: "USER", content: prompt },
+                                    { role: "USER", content: userPrompt },
                                     { role: "ASSISTANT", content: JSON.stringify(agentResponse) }
                                 ]
                             }
@@ -82,11 +60,19 @@ export async function POST(req: NextRequest) {
                     }
                 }
             }
-            throw new Error("Failed to allocate unique sessionId after 3 attempts.");
         }
-
-    } catch (e: unknown) {
-        const message = e instanceof Error ? e.message : "Unknown error";
-        return Response.json({ error: message }, { status: 500 });
+        saveMessages(conversationId, "USER", userPrompt);
+        saveMessages(conversationId, "ASSISTANT", typeof agentResponse === "string" ? agentResponse : JSON.stringify(agentResponse));
+        persistRun(
+            {
+                convId: conversationId,
+                input: userPrompt,
+                raw: typeof agentResponse === "string" ? agentResponse : JSON.stringify(agentResponse),
+                parsedType: agentResponse.type === "clarification" ? "MESSAGE" : agentResponse.type === "plan" ? "PLAN" : "ERROR"
+            }
+        )
+    } catch (error) {
+        console.error('Error in AI plan generation:', error);
+        return new Response('Internal Server Error', { status: 500 });
     }
 }

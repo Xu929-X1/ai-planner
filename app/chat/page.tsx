@@ -38,7 +38,8 @@ interface Conversation {
     archived: boolean
     createdAt: string
     updatedAt: string
-    userId: number
+    userId: number,
+    sessionId?: string
 }
 
 export default function Page() {
@@ -83,7 +84,8 @@ export default function Page() {
 
         const res = await axios.post(endpoints.plan.aiGenerate.post, {
             body: input,
-            conversationId: selectedConversation?.id
+            conversationId: selectedConversation?.id,
+            sessionId: selectedConversation?.sessionId // Assuming sessionId is same as conversationId
         })
 
         const json = res.data

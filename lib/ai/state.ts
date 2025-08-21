@@ -1,27 +1,29 @@
 import prisma from "@/lib/prisma";
+import { generateTitleFromMessage } from "./generateTitleFromMsg";
 
 //use sessionid as idempotency key
-export async function ensureConversation(sessionId: string, userId: number, title = "") {
+export async function ensureConversation(sessionId: string, userId: number) {
     let convo = await prisma.conversation.findUnique({
         where: {
             sessionId: sessionId
         }
     });
     if (!convo) {
+        const title = await generateTitleFromMessage("New Conversation");
         convo = await prisma.conversation.create({
             data: {
                 sessionId: sessionId,
                 userId: userId,
-                title: title
+                title: title,
             }
         });
     }
     return convo;
 }
 
-export async function getConvoContext(sessionId: string, userId: number, title?: string, lastMessageCount = 8) {
-    const convo = await ensureConversation(sessionId, userId, title);
-    const [messages, plan, task] = await Promise.all([
+export async function getConvoContext(sessionId: string, userId: number, lastMessageCount = 8) {
+    const convo = await ensureConversation(sessionId, userId);
+    const [messages, plan, task, agentRuns] = await Promise.all([
         prisma.message.findMany({
             where: { conversationId: convo.id },
             orderBy: { createdAt: 'asc' },
@@ -34,9 +36,13 @@ export async function getConvoContext(sessionId: string, userId: number, title?:
         prisma.task.findMany({
             where: { conversationId: convo.id },
             orderBy: { createdAt: 'asc' }
+        }),
+        prisma.agentRun.findMany({
+            where: { conversationId: convo.id },
+            orderBy: { createdAt: 'asc' }
         })
     ]);
-    return { convo, messages, plan, task };
+    return { convo, messages, plan, task, agentRuns };
 }
 
 
