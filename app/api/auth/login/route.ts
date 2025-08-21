@@ -23,8 +23,8 @@ async function generateToken(payload: UserPayload, secret: string) {
 
 export async function POST(req: Request) {
     try {
-        const { email, password }= await req.json();
-       
+        const { email, password } = await req.json();
+
         if (!email || !password) {
             return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
         }
@@ -41,7 +41,11 @@ export async function POST(req: Request) {
         if (!isValid) {
             return NextResponse.json({ error: 'Incorrect password or username' }, { status: 401 })
         }
-        const token = await generateToken({ id: user.id, email: user.email }, process.env.JWT_SECRET || 'default_secret');
+        const JWT_SECRET = process.env.JWT_SECRET;
+        if (!JWT_SECRET) {
+            throw new Error('JWT secret is not set');
+        }
+        const token = await generateToken({ id: user.id, email: user.email }, JWT_SECRET);
         (await cookies()).set({
             name: 'auth_token',
             value: token,
@@ -51,7 +55,6 @@ export async function POST(req: Request) {
             expires: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours
             maxAge: 2 * 60 * 60, // 2 hours
         })
-        // 如果只返回用户基本信息
         return NextResponse.json({ message: 'Login success', userId: user.id, email: user.email }, { status: 200 })
     } catch (error) {
         console.error(error)

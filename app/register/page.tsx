@@ -11,7 +11,8 @@ import { UserContext } from '@/contexts/userContext';
 import { useRouter } from 'next/navigation';
 
 type State = {
-    error?: string
+    error?: string,
+    success?: boolean
 }
 
 async function handleRegister(prevState: State, formData: FormData): Promise<State> {
@@ -28,14 +29,14 @@ async function handleRegister(prevState: State, formData: FormData): Promise<Sta
         }
 
         const response = await axios.post(endpoints.auth.register.post, {
-            body: JSON.stringify({
+            body: {
                 email,
                 password
-            })
+            }
         });
 
         if (response.status === 200) {
-            return {};
+            return { success: true };
         } else {
             return { error: 'Registration failed, please try again.' };
         }
@@ -56,6 +57,12 @@ export default function Register() {
             router.push("/dashboard");
         }
     }, [userContextInstance.user])
+
+    useEffect(() => {
+        if (state.success) {
+            router.push("/login");
+        }
+    }, [state.success])
     return (
         <div className='text-left flex h-screen items-center justify-center w-screen'>
             <Card className="w-full max-w-md">

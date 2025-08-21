@@ -3,10 +3,8 @@ import prisma from '@/lib/prisma';
 
 export async function POST(req: Request) {
     try {
-        const requestBody = await req.json() as {
-            body: string
-        };
-        const { email, password } = JSON.parse(requestBody.body);
+        const requestBody = await req.json();
+        const { email, password } = (requestBody.body);
         if (!email || !password) {
             return new Response(JSON.stringify({ error: 'Email and password are required' }), { status: 400 });
         }
