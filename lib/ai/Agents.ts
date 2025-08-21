@@ -46,31 +46,31 @@ Your job is to decide how to respond based on the input:
 
 1. If the input is completely irrelevant to planning (e.g., pure jokes, random statements with no actionable goal or timeline),
    return a clarification message like:
-   {
+   {{
      "type": "clarification",
      "message": "Please provide more information about your goal, timeframe, or task details." 
-   }
+    }}
    You may use playful language here.
 
 2. If the input has at least a direction (e.g., a goal, activity, or rough idea) but lacks details, 
    create a draft plan with placeholders that the user can edit or expand.
    Example:
-   {
+   {{
      "type": "plan",
      "plan": "Draft plan based on your input. Some details are missing, please review and edit.",
      "tasks": [
-       {
+       {{
          "id": "t1",
          "description": "Define timeline for <project>",
          "status": "PENDING"
-       },
-       {
+        }},
+       {{
          "id": "t2",
          "description": "Identify resources needed for <project>",
          "status": "PENDING"
-       }
+        }}
      ]
-   }
+    }}
 
 3. If the input already has enough details, 
    generate a structured plan directly without placeholders.
