@@ -85,7 +85,7 @@ export default function Page() {
         const res = await axios.post(endpoints.plan.aiGenerate.post, {
             body: input,
             conversationId: selectedConversation?.id,
-            sessionId: selectedConversation?.sessionId // Assuming sessionId is same as conversationId
+            sessionId: selectedConversation?.sessionId
         })
 
         const json = res.data
@@ -113,7 +113,6 @@ export default function Page() {
 
         setMessages((prev) => [...prev, aiMessage])
         setLoading(false)
-
         if (!selectedConversation && json.conversationId) {
             const newConv = {
                 id: json.conversationId,
@@ -121,10 +120,12 @@ export default function Page() {
                 archived: false,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
-                userId: 0
+                userId: 0,
+                sessionId: json.sessionId
             }
             setAllConversations((prev) => [newConv, ...prev])
-            setSelectedConversation(newConv)
+            await getAllConversations();
+            setSelectedConversation(allConversations.find(c => c.id === json.conversationId) || newConv)
         }
     }
 

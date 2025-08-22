@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getUserInfo } from "../../utils";
 import { runPlanAgent, runPlannerWithAutoSummary } from "@/lib/ai/Agents";
 import { getConvoContext, persistRun, saveMessages } from "@/lib/ai/state";
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
                             }
                         }
                     });
-                    return Response.json(
+                    return NextResponse.json(
                         {
                             message: "Created new conversation",
                             data: agentResponse,
@@ -71,6 +71,15 @@ export async function POST(req: NextRequest) {
                 parsedType: agentResponse.type === "clarification" ? "MESSAGE" : agentResponse.type === "plan" ? "PLAN" : "ERROR"
             }
         )
+        return NextResponse.json(
+            {
+                message: "AI plan generated successfully",
+                data: agentResponse,
+                conversationId,
+                sessionId: request.sessionId || null
+            },
+            { status: 200 }
+        );
     } catch (error) {
         console.error('Error in AI plan generation:', error);
         return new Response('Internal Server Error', { status: 500 });

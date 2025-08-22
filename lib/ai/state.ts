@@ -49,11 +49,15 @@ export async function getConvoContext(sessionId: string, userId: number, lastMes
 export async function persistRun(opts: {
     convId: number; input: string; raw: string; parsedType: "PLAN" | "TASK" | "MESSAGE" | "ERROR";
 }) {
-    return prisma.agentRun.create({
-        data: {
-            conversationId: opts.convId, input: opts.input, rawOutput: opts.raw, parsedType: opts.parsedType
-        }
-    });
+    try {
+        return prisma.agentRun.create({
+            data: {
+                conversationId: opts.convId, input: opts.input, rawOutput: opts.raw, parsedType: opts.parsedType
+            }
+        });
+    } catch (e) {
+        console.error("Error persisting agent run:", e);
+    }
 }
 
 export async function saveMessages(convId: number, from: "USER" | "ASSISTANT", msg: string) {

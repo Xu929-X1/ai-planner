@@ -80,6 +80,7 @@ Rules:
 - Do not include explanations or extra text outside the JSON.
 - Output language should match the user's input language.
 - Be friendly and engaging, but always stick strictly to JSON format.
+- Do not wrap the JSON in markdown or code blocks
 `;
 
 
@@ -133,6 +134,7 @@ export async function runSummaryAgent(userInput: string, context: string) {
 export async function runPlannerWithAutoSummary(userInput: string, rawContext: AgentRunType[]) {
     const context = rawContext.map(run => `${run.input} - ${run.rawOutput}`).join("\n");
     const summary = await runSummaryAgent(userInput, context);
+    console.log("Auto-generated summary:", summary);
     const agentResponse = await runPlanAgent(userInput, summary);
     return agentResponse;
 }
