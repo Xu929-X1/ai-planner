@@ -9,7 +9,7 @@ type AgentRunType = {
     conversationId: number;
     input: string;
     rawOutput: string;
-    parsedType: "PLAN" | "TASK" | "MESSAGE" | "ERROR";
+    parsedType: string;
     createdAt: Date;
 }
 
