@@ -4,6 +4,15 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
+type AgentRunType = {
+    id: string;
+    conversationId: number;
+    input: string;
+    rawOutput: string;
+    parsedType: string;
+    createdAt: Date;
+}
+
 const PlanningSchema = z.discriminatedUnion("type", [
     z.object({
         type: z.literal("clarification"),
@@ -28,54 +37,82 @@ const model = new ChatOpenAI({
     temperature: 0.7
 });
 
-const systemPrompt = `You are an AI agent that helps users plan their tasks and projects.
+const planningSystemPrompt = `
+You are an AI agent that helps users plan their tasks and projects.
 The current date is ${new Date().toISOString()}.
-You will receive a prompt from a user.
-If the prompt is too vague or lacks key details (e.g., no goal, no timeline, no constraints), return a clarification message like:
-{{
-  "type": "clarification",
-  "message": "Please provide more information about your goal, timeframe, or task details." 
-}}
-You may use playful language to ask for more information - for example: user enters: "I am a cat" and you can respond with:
-{{
-  "type": "clarification",
-  "message": "🐱 Meow! I see you're a cat. But what kind of plan are you looking for? Please share your goals, timeline, or any specific tasks you have in mind."
-}}
-If the prompt is valid and has sufficient information, return a structured plan and tasks like:
-{{
-  "type": "plan",
-  "plan": "Overall summary of the plan...",
-  "tasks": [
-    {{
-      "id": "string",
-      "description": "task description",
-      "status": "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED",
-      "dueDate": "optional ISO 8601 date string"
+
+You will receive a prompt from a user, as well as some context about their previous messages. If no context is provided, meaning it is a new conversation.
+Your job is to decide how to respond based on the input:
+
+1. If the input is completely irrelevant to planning (e.g., pure jokes, random statements with no actionable goal or timeline),
+   return a clarification message like:
+   {{
+     "type": "clarification",
+     "message": "Please provide more information about your goal, timeframe, or task details." 
     }}
-  ]
-}}
-Only return one of the above formats.
-Do not include explanations or any other content.
-Only return the raw JSON object, not wrapped in quotes.
-The output language should be based on the user's input language, so if the user writes in English, respond in English, if they write in Spanish, respond in Spanish, etc. 
-If the user writes in a mix of languages, respond in the language that is most prevalent in their input.
-Try to be friendly and engaging in your responses, but always stick to the JSON format.
+   You may use playful language here.
+
+2. If the input has at least a direction (e.g., a goal, activity, or rough idea) but lacks details, 
+   create a draft plan with placeholders that the user can edit or expand.
+   Example:
+   {{
+     "type": "plan",
+     "plan": "Draft plan based on your input. Some details are missing, please review and edit.",
+     "tasks": [
+       {{
+         "id": "t1",
+         "description": "Define timeline for <project>",
+         "status": "PENDING"
+        }},
+       {{
+         "id": "t2",
+         "description": "Identify resources needed for <project>",
+         "status": "PENDING"
+        }}
+     ]
+    }}
+
+3. If the input already has enough details, 
+   generate a structured plan directly without placeholders.
+
+Rules:
+- Only return one of the above formats.
+- Do not include explanations or extra text outside the JSON.
+- Output language should match the user's input language.
+- Be friendly and engaging, but always stick strictly to JSON format.
+- Do not wrap the JSON in markdown or code blocks
 `;
 
 
-const prompt = ChatPromptTemplate.fromMessages([
-    ["system", systemPrompt],
-    ["human", "{input}"]
+const planPrompt = ChatPromptTemplate.fromMessages([
+    ["system", planningSystemPrompt],
+    ["human", "{input}\n\nContext:\n{context}"]
 ]);
 
-const chain = RunnableSequence.from([
-    prompt,
+const planChain = RunnableSequence.from([
+    planPrompt,
     model,
     new StringOutputParser()
 ]);
 
-export async function runPlanAgent(userInput: string) {
-    const raw = await chain.invoke({ input: userInput });
+const summaryPrompt = `You are a summary agent, 
+    you will be given a series of messages and you will give a brief summary of the conversation, 
+    the summary will be used to help other agents understand the context of the conversation.
+    the summary should be concise and to the point, without any fluff or unnecessary details.
+    The length of the summary should be no more than 3 sentences.
+    `
+
+const summaryChain = RunnableSequence.from([
+    ChatPromptTemplate.fromMessages([
+        ["system", summaryPrompt],
+        ["human", "{input}"]
+    ]),
+    model,
+    new StringOutputParser()
+]);
+
+export async function runPlanAgent(userInput: string, context: string) {
+    const raw = await planChain.invoke({ input: userInput, context });
 
     try {
         const json = JSON.parse(raw);
@@ -89,3 +126,16 @@ export async function runPlanAgent(userInput: string) {
         };
     }
 }
+
+export async function runSummaryAgent(userInput: string, context: string) {
+    return await summaryChain.invoke({ input: context });
+}
+
+export async function runPlannerWithAutoSummary(userInput: string, rawContext: AgentRunType[]) {
+    const context = rawContext.map(run => `${run.input} - ${run.rawOutput}`).join("\n");
+    const summary = await runSummaryAgent(userInput, context);
+    console.log("Auto-generated summary:", summary);
+    const agentResponse = await runPlanAgent(userInput, summary);
+    return agentResponse;
+}
+
