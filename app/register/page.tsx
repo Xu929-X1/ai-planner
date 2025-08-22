@@ -54,7 +54,7 @@ export default function Register() {
     const router = useRouter();
     useEffect(() => {
         if (userContextInstance.user) {
-            router.push("/dashboard");
+            router.push("/chat");
         }
     }, [userContextInstance.user])
 
@@ -63,6 +63,7 @@ export default function Register() {
             router.push("/login");
         }
     }, [state.success])
+
     return (
         <div className='text-left flex h-screen items-center justify-center w-screen'>
             <Card className="w-full max-w-md">
