@@ -22,7 +22,7 @@ export default function NavBar() {
     const { user, getUserInfo } = useContext(UserContext);
     const notification = useNotification();
     async function logout() {
-        await axios.get(endpoints.auth.logout.get);
+        await axios.get(endpoints.auth.logout.post);
         getUserInfo();
         notification.showNotification("Log out successfully", "success")
         redirect("/");

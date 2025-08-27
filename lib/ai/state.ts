@@ -50,7 +50,7 @@ export async function persistRun(opts: {
     convId: number; input: string; raw: string; parsedType: "PLAN" | "TASK" | "MESSAGE" | "ERROR";
 }) {
     try {
-        return prisma.agentRun.create({
+        return await prisma.agentRun.create({
             data: {
                 conversationId: opts.convId, input: opts.input, rawOutput: opts.raw, parsedType: opts.parsedType
             }

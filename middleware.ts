@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as jose from 'jose';
 export async function middleware(request: NextRequest) {
-    // so we can skip auth check for these paths
 
     const token = request.cookies.get('auth_token')?.value;
     if (!token) {
