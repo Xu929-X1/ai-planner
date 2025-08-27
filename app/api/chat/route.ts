@@ -4,10 +4,12 @@ import prisma from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
     const user = await getUserInfo(req);
-
+    if (!user) {
+        return new Response('Unauthorized', { status: 401 });
+    }
     const response = await prisma.conversation.findMany({
         where: {
-            userId: Number(user.id),
+            userId: Number(user?.id),
         },
     });
 
