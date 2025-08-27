@@ -3,7 +3,7 @@ import * as jose from "jose";
 export async function getUserInfo(req: NextRequest) {
     const token = req.cookies.get('auth_token');
     if (!token) {
-        throw new Error("Unauthorized");
+        return null;
     }
 
     const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'default_secret');

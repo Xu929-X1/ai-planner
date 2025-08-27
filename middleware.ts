@@ -25,7 +25,6 @@ export const config = {
         '/tasks/:path*',
         '/plans/:path*',
         '/chat/:path*',
-        '/api/me',
+        // '/api/me',
     ],
-
 }

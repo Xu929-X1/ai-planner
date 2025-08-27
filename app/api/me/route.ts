@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getUserInfo } from "../utils";
 export async function GET(request: NextRequest) {
-
     try {
         const userInfo = await getUserInfo(request);
+        if (!userInfo) {
+            return new NextResponse('Unauthorized', { status: 401 });
+        }
         const user = await prisma.user.findUnique({
             where: { id: userInfo.id as number },
             select: {
