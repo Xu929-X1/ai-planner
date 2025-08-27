@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
                 email: true,
                 createdAt: true,
                 updatedAt: true,
+                name: true
             }
         })
         if (!user) {

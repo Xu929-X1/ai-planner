@@ -3,10 +3,14 @@
 import { PanelLeftClose, PanelLeftOpen, FilePenLine } from 'lucide-react'
 import { Button } from '@/components/UI/button'
 import { Textarea } from '@/components/UI/textarea'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import axios from 'axios'
 import { endpoints } from '@/app/api/route-helper'
 import { safeParseContent } from '@/lib/utils'
+import { generateSVG } from '@/components/Avatar/generator'
+import { UserContext } from '@/contexts/userContext'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/UI/dropdown-menu'
+import { useRouter } from 'next/navigation'
 
 type ChatMessageBase = {
     id?: string
@@ -47,13 +51,14 @@ export default function Page() {
     const [loading, setLoading] = useState(false)
     const [messages, setMessages] = useState<ChatMessage[]>([])
     const [allConversations, setAllConversations] = useState<Conversation[]>([])
-    const [selectedConversation, setSelectedConversation] =
-        useState<Conversation | null>(null)
+    const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
     const [sidebarVisible, setSidebarVisible] = useState(true)
-
+    const router = useRouter();
+    const userContextInstance = useContext(UserContext)
     useEffect(() => {
         getAllConversations()
     }, [])
+
 
     useEffect(() => {
         if (selectedConversation) {
@@ -138,8 +143,7 @@ export default function Page() {
           hidden md:block transition-all duration-300 border-r bg-background
           ${sidebarVisible ? 'w-64' : 'w-0'}
         `}>
-                <div
-                    className={`
+                <div className={`
             h-full overflow-y-auto px-4 py-4 transition-opacity duration-300
             ${sidebarVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}
           `}>
@@ -176,18 +180,41 @@ export default function Page() {
                             </div>
                         ))}
                     </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger className="flex items-center w-full">
+                            <div className="hover:bg-muted cursor-pointer rounded-sm flex items-center justify-between px-2 py-2 flex-1">
+                                <h4 className="text-left flex-1">
+                                    {userContextInstance.user?.name}
+                                </h4>
+                                <div className="ml-2 flex-shrink-0">
+                                    {generateSVG(userContextInstance.user?.name ?? "", { size: 32, rounded: true })}
+                                </div>
+                            </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0">
+                            <DropdownMenuItem onClick={() => {
+                                axios.post(endpoints.auth.logout.post).then(() => {
+                                    router.push('/login')
+                                });
+                            }}>
+                                Logout
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
-            {!sidebarVisible && (
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setSidebarVisible(true)}
-                    className="absolute top-8 left-4 z-50 text-muted-foreground hidden md:flex"
-                >
-                    <PanelLeftOpen className="w-4 h-4" />
-                </Button>
-            )}
+            {
+                !sidebarVisible && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setSidebarVisible(true)}
+                        className="absolute top-8 left-4 z-50 text-muted-foreground hidden md:flex"
+                    >
+                        <PanelLeftOpen className="w-4 h-4" />
+                    </Button>
+                )
+            }
 
             {/* Main Content */}
             <div className="flex-1 relative flex flex-col overflow-hidden">
@@ -286,6 +313,6 @@ export default function Page() {
                 )}
             </div>
 
-        </div>
+        </div >
     )
 }
