@@ -50,7 +50,6 @@ export default function Login() {
         return { error: 'Login failed, please check your credentials.' };
       }
     } catch (error) {
-      console.error('Login error:', error);
       if (axios.isAxiosError(error) && error.response) {
         notificationContext.showNotification(`Login Error: ${error.response.data.error}`, "error");
         return { error: error.response.data.error || 'Login failed' };

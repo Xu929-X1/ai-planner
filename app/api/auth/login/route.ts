@@ -1,8 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
 import prisma from '@/lib/prisma';
+import { AppError } from '@/lib/api/Errors';
+import { withApiHandler } from '@/lib/api/withApiHandlers';
+import { LoginSchema } from '@/lib/api/validators';
 
 type UserPayload = {
     id: number;
@@ -14,19 +17,25 @@ async function generateToken(payload: UserPayload, secret: string) {
     const jwt = await new jose.SignJWT(payload)
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
-        .setExpirationTime('2h') // Token valid for 2 hours
+        .setExpirationTime('2h')
         .sign(encoder.encode(secret));
 
     return jwt;
 }
 
-
-export async function POST(req: Request) {
+export const POST = withApiHandler(async (req: NextRequest) => {
     try {
-        const { email, password } = await req.json();
+        const json = await req.json().catch(() => {
+            throw AppError.badRequest('Invalid JSON body', 400);
+        });
+        const parsed = await LoginSchema.safeParseAsync(json);
+        if (!parsed.success) {
+            throw AppError.badRequest('Invalid request body', 400);
+        }
+        const { email, password } = parsed.data;
 
         if (!email || !password) {
-            return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
+            throw AppError.badRequest('Email and password are required', 400);
         }
 
         const user = await prisma.user.findUnique({
@@ -34,7 +43,7 @@ export async function POST(req: Request) {
         })
 
         if (!user) {
-            return NextResponse.json({ error: 'User does not exist' }, { status: 404 })
+            throw AppError.notFound();
         }
 
         const isValid = await bcrypt.compare(password, user.password)
@@ -60,4 +69,4 @@ export async function POST(req: Request) {
         console.error(error)
         return NextResponse.json({ error: 'Server Error' }, { status: 500 })
     }
-}
+});
