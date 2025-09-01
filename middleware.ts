@@ -21,11 +21,10 @@ export const config = {
     matcher: [
         // '/profile/:path*',
         // '/settings/:path*',
-        // '/projects/:path*',
+        // '//projects/:path*',
         '/tasks/:path*',
         '/plans/:path*',
         '/chat/:path*',
-        '/api/me',
     ],
 
 }
