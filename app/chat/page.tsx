@@ -4,13 +4,13 @@ import { PanelLeftClose, PanelLeftOpen, FilePenLine } from 'lucide-react'
 import { Button } from '@/components/UI/button'
 import { Textarea } from '@/components/UI/textarea'
 import { useContext, useEffect, useState } from 'react'
-import axios from 'axios'
 import { endpoints } from '@/app/api/route-helper'
 import { safeParseContent } from '@/lib/utils'
 import { generateSVG } from '@/components/Avatar/generator'
 import { UserContext } from '@/contexts/userContext'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/UI/dropdown-menu'
 import { useRouter } from 'next/navigation'
+import axios from 'axios'
 
 type ChatMessageBase = {
     id?: string
@@ -63,9 +63,9 @@ export default function Page() {
     useEffect(() => {
         if (selectedConversation) {
             // Fetch messages for the selected conversation
-            axios.get<ChatMessage[]>(`${endpoints.chat.allChat.get}/${selectedConversation.id}`)
+            axios.get<{data: ChatMessage[]}>(`${endpoints.chat.allChat.get}/${selectedConversation.id}`)
                 .then(res => {
-                    setMessages(res.data)
+                    setMessages(res.data.data)
                 })
                 .catch(err => {
                     console.error('Error fetching messages:', err)
@@ -76,8 +76,8 @@ export default function Page() {
     }, [selectedConversation])
 
     async function getAllConversations() {
-        const res = await axios.get<Conversation[]>(endpoints.chat.allChat.get)
-        setAllConversations(res.data.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()))
+        const res = await axios.get<{data: Conversation[]}>(endpoints.chat.allChat.get)
+        setAllConversations(res.data.data.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()))
     }
 
     const sendMessage = async () => {

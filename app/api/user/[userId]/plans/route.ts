@@ -1,15 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { getUserInfo } from "@/app/api/utils";
+import { withApiHandler } from "@/lib/api/withApiHandlers";
+import { AppError } from "@/lib/api/Errors";
 //get all tasks and plans under the user
-export async function GET(req: NextRequest) {
+
+export const GET = withApiHandler(async (req: NextRequest) => {
     try {
         const userInfo = await getUserInfo(req);
         const userId = userInfo.id;
         if (!userId) {
-            return new NextResponse("Unrecognized user", {
-                status: 400
-            })
+
         }
         const args = {
             where: {
@@ -21,9 +22,9 @@ export async function GET(req: NextRequest) {
         };
 
         const plans = await prisma.plan.findMany(args);
-        return NextResponse.json(plans);
+        return plans;
     } catch (error) {
         console.error("JWT verification failed or DB error:", error);
-        return new NextResponse("Internal Server Error", { status: 500 });
+        throw AppError.unauthorized("Invalid or expired token");
     }
-}
+})

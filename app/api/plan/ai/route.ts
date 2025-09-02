@@ -1,19 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { getUserInfo } from "../../utils";
 import { runPlanAgent, runPlannerWithAutoSummary } from "@/lib/ai/Agents";
 import { getConvoContext, persistRun, saveMessages } from "@/lib/ai/state";
 import { generateTitleFromMessage } from "@/lib/ai/generateTitleFromMsg";
 import { Prisma } from "@/app/generated/prisma";
 import prisma from "@/lib/prisma";
+import { withApiHandler } from "@/lib/api/withApiHandlers";
+import { AppError } from "@/lib/api/Errors";
 
-export async function POST(req: NextRequest) {
+export const POST = withApiHandler(async (req: NextRequest) => {
     try {
         const request = await req.json();
         const userPrompt = request.body;
         const conversationId = request.conversationId;
         const sessionId = request.sessionId;
         if (typeof userPrompt !== 'string') {
-            return new Response('Invalid input', { status: 400 });
+            throw AppError.badRequest('Invalid input: userPrompt must be a string');
         }
         const user = await getUserInfo(req);
         let agentResponse;
@@ -41,15 +43,12 @@ export async function POST(req: NextRequest) {
                             }
                         }
                     });
-                    return NextResponse.json(
-                        {
-                            message: "Created new conversation",
-                            data: agentResponse,
-                            conversationId: conversation.id,
-                            sessionId: conversation.sessionId,
-                        },
-                        { status: 201 }
-                    );
+                    return {
+                        message: "Created new conversation",
+                        data: agentResponse,
+                        conversationId: conversation.id,
+                        sessionId: conversation.sessionId,
+                    }
                 } catch (e: unknown) {
                     if (e instanceof Prisma.PrismaClientKnownRequestError) {
                         if (e.code === "P2002") {// p2002 is unique constraint violation
@@ -71,17 +70,18 @@ export async function POST(req: NextRequest) {
                 parsedType: agentResponse.type === "clarification" ? "MESSAGE" : agentResponse.type === "plan" ? "PLAN" : "ERROR"
             }
         )
-        return NextResponse.json(
-            {
-                message: "AI plan generated successfully",
-                data: agentResponse,
-                conversationId,
-                sessionId: request.sessionId || null
-            },
-            { status: 200 }
-        );
+        return {
+            message: "AI plan generated successfully",
+            data: agentResponse,
+            conversationId,
+            sessionId: request.sessionId || null
+        };
     } catch (error) {
         console.error('Error in AI plan generation:', error);
-        return new Response('Internal Server Error', { status: 500 });
+        if (error instanceof AppError) {
+            throw error;
+        } else {
+            throw AppError.internal('AI plan generation failed');
+        }
     }
-}
+});

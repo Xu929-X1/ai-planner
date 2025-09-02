@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
@@ -48,11 +48,11 @@ export const POST = withApiHandler(async (req: NextRequest) => {
 
         const isValid = await bcrypt.compare(password, user.password)
         if (!isValid) {
-            return NextResponse.json({ error: 'Incorrect password or username' }, { status: 401 })
+            throw AppError.unauthorized('Invalid email or password');
         }
         const JWT_SECRET = process.env.JWT_SECRET;
         if (!JWT_SECRET) {
-            throw new Error('JWT secret is not set');
+            throw AppError.internal('JWT secret is not configured');
         }
         const token = await generateToken({ id: user.id, email: user.email }, JWT_SECRET);
         (await cookies()).set({
@@ -64,9 +64,13 @@ export const POST = withApiHandler(async (req: NextRequest) => {
             expires: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours
             maxAge: 2 * 60 * 60, // 2 hours
         })
-        return NextResponse.json({ message: 'Login success', userId: user.id, email: user.email }, { status: 200 })
+        return {
+            id: user.id,
+            email: user.email,
+            name: user.name
+        }
     } catch (error) {
         console.error(error)
-        return NextResponse.json({ error: 'Server Error' }, { status: 500 })
+        throw AppError.internal('Login failed')
     }
 });

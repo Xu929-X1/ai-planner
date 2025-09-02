@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
+import { withApiHandler } from "@/lib/api/withApiHandlers";
+import { cookies } from "next/headers";
 
-export async function POST() {
-    const response = NextResponse.json({
-        message: "Log out",
-    });
-
-    response.cookies.set("auth_token", "", {
+export const POST = withApiHandler(async () => {
+    const cookieStore = await cookies();
+    cookieStore.set("auth_token", "", {
         httpOnly: true,
-        expires: new Date(0)
+        expires: new Date(0),
+        path: "/",           
+        sameSite: "lax",
     });
 
-    return response;
-}
+    return { message: "Log out" }; 
+})

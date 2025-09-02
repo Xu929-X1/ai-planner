@@ -6,12 +6,12 @@ import { Label } from '@/components/UI/label'
 import { useRouter } from 'next/navigation'
 import React, { useActionState, useContext, useEffect } from 'react'
 import GoogleIcon from '@mui/icons-material/Google';
-import axios from 'axios';
 import { endpoints } from '../api/route-helper'
 import PasswordInput from '@/components/PasswordInput'
 import Link from 'next/link'
 import { UserContext } from '@/contexts/userContext'
 import { useNotification } from '@/contexts/NotificationContext'
+import axios from 'axios'
 
 type State = {
   error?: string

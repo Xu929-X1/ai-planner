@@ -81,12 +81,12 @@ export function generateSVG(name: string, options: AvatarOptions) {
       x="50%"
       y="50%"
       dy="0.1em"
-      dominant-baseline="middle"
-      text-anchor="middle"
+      dominantBaseline="middle"
+      textAnchor="middle"
       fill={textColor}
-      font-family={fontFamily}
-      font-size={calculatedFontSize}
-      font-weight={500}
+      fontFamily={fontFamily}
+      fontSize={calculatedFontSize}
+      fontWeight={500}
     >
       {cleanInitials}
     </text>

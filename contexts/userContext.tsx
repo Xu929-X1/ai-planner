@@ -31,8 +31,8 @@ export default function UserProvider({ children }: { children: React.ReactNode }
   async function getUser() {
     try {
       setIsLoading(true)
-      const res = await axios.get<UserType>(endpoints.user.self.get, { withCredentials: true });
-      setUserInfo(res.data);
+      const res = await axios.get<{ data: UserType }>(endpoints.user.self.get, { withCredentials: true });
+      setUserInfo(res.data.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setUserInfo(undefined);

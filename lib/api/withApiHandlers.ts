@@ -8,13 +8,19 @@ function genTraceId() {
 }
 
 export function withApiHandler<T>(
-  handler: (req: NextRequest, traceId: string) => Promise<T> | T,
+  handler: (req: NextRequest,
+    context?: {
+      params?: Promise<{ [key: string]: string }>;
+    },
+    traceId?: string
+  ) => Promise<T> | T,
   options?: { cors?: { origin?: string; methods?: string[]; headers?: string[] } }
 ) {
-  return async (req: NextRequest) => {
-    const traceId = genTraceId();
-
-    try {
+  return async (req: NextRequest, context: {
+    params?: Promise<{ [key: string]: string }>;
+  }) => {
+    const traceId = genTraceId(); 
+    try { 
       if (req.method === 'OPTIONS') {
         return new Response(null, {
           status: 204,
@@ -26,7 +32,7 @@ export function withApiHandler<T>(
         });
       }
 
-      const data = await handler(req, traceId);
+      const data = await handler(req, context, traceId);
       const res = ok(data);
       res.headers.set('X-Trace-Id', traceId);
       if (options?.cors) {
@@ -34,6 +40,7 @@ export function withApiHandler<T>(
       }
       return res;
     } catch (err: unknown) {
+      console.log('Error traceId:', traceId, err);
       if (err instanceof AppError) {
         return fail(err, traceId);
       }
