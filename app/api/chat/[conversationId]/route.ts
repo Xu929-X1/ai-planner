@@ -1,18 +1,19 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
+import { withApiHandler } from "@/lib/api/withApiHandlers";
+import { AppError } from "@/lib/api/Errors";
 // @eslint-disable-next-line no-unused-vars
-export async function GET(req: NextRequest, context: { params: Promise<{ conversationId: string }> }) {
-    const params = await context.params;
+export const GET = withApiHandler(async (_req: NextRequest, context: { params: Record<string, string> }) => {
+
+    const conversationId = context.params.conversationId;
+    if (!conversationId) {
+        throw AppError.badRequest("conversationId is required");
+    }
     const response = await prisma.message.findMany({
         where: {
-            conversationId: Number(params.conversationId),
+            conversationId: Number(conversationId),
         },
     });
 
-    return new Response(JSON.stringify(response), {
-        status: 200,
-        headers: {
-            "Content-Type": "application/json",
-        }
-    });
-}
+    return response;
+});

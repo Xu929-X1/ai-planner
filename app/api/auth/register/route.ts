@@ -1,19 +1,22 @@
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
+import { AppError } from '@/lib/api/Errors';
+import { withApiHandler } from '@/lib/api/withApiHandlers';
+import { NextRequest } from 'next/server';
 
-export async function POST(req: Request) {
+export const POST = withApiHandler(async (req: NextRequest) => {
     try {
         const requestBody = await req.json();
-        const { email, password } = (requestBody.body);
+        const { email, password } = (requestBody);
         if (!email || !password) {
-            return new Response(JSON.stringify({ error: 'Email and password are required' }), { status: 400 });
+            throw AppError.badRequest('Email and password are required');
         }
         const existingUser = await prisma.user.findUnique({
             where: { email }
         });
 
         if (existingUser) {
-            return new Response(JSON.stringify({ error: 'User already exists' }), { status: 400 });
+            throw AppError.conflict('User with this email already exists');
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -25,10 +28,12 @@ export async function POST(req: Request) {
         });
         if (newuser) {
             console.log('User registered successfully:', newuser.email);
-            return new Response(JSON.stringify({ message: 'Registration successful', userId: newuser.id }), { status: 200 });
+            return newuser;
         }
     } catch (error) {
         console.error('Error during registration:', error);
-        return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
+        throw AppError.internal('Registration failed');
     }
-}
+});
+
+

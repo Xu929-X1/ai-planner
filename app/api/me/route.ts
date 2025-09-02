@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { getUserInfo } from "../utils";
-export async function GET(request: NextRequest) {
+import { withApiHandler } from "@/lib/api/withApiHandlers";
+import { AppError } from "@/lib/api/Errors";
 
+export const GET = withApiHandler(async (request: NextRequest) => {
     try {
         const userInfo = await getUserInfo(request);
         const user = await prisma.user.findUnique({
@@ -16,11 +18,11 @@ export async function GET(request: NextRequest) {
             }
         })
         if (!user) {
-            return new NextResponse('User not found', { status: 404 });
+            throw AppError.notFound('User not found');
         }
-        return NextResponse.json(user, { status: 200 });
+        return user;
     } catch (error) {
         console.error('Error verifying token:', error);
-        return new NextResponse('Internal Server Error', { status: 500 });
+        throw AppError.unauthorized('Invalid or expired token');
     }
-}
+});

@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server";
 import { getUserInfo } from "../utils";
 import prisma from "@/lib/prisma";
+import { withApiHandler } from "@/lib/api/withApiHandlers";
 
-export async function GET(req: NextRequest) {
+export const GET = withApiHandler(async (req: NextRequest) => {
     const user = await getUserInfo(req);
 
     const response = await prisma.conversation.findMany({
@@ -11,10 +12,7 @@ export async function GET(req: NextRequest) {
         },
     });
 
-    return new Response(JSON.stringify(response), {
-        status: 200,
-        headers: {
-            "Content-Type": "application/json",
-        }
-    });
-}
+    return response
+});
+
+
