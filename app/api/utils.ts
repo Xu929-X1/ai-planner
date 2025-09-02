@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import * as jose from "jose";
-import { AppError } from "@/lib/api/errors";
+import { AppError } from "@/lib/api/Errors";
 
 export async function getUserInfo(req: NextRequest) {
     const token = req.cookies.get('auth_token');

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { withApiHandler } from "@/lib/api/withApiHandlers";
-import { AppError } from "@/lib/api/errors";
+import { AppError } from "@/lib/api/Errors";
 
 export const GET = withApiHandler(async (req: NextRequest, context: { params: Record<string, string> }) => {
     try {

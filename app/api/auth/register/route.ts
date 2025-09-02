@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
-import { AppError } from '@/lib/api/errors';
+import { AppError } from '@/lib/api/Errors';
 import { withApiHandler } from '@/lib/api/withApiHandlers';
 import { NextRequest } from 'next/server';
 

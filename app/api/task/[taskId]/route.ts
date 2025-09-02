@@ -1,4 +1,4 @@
-import { AppError } from "@/lib/api/errors";
+import { AppError } from "@/lib/api/Errors";
 import { withApiHandler } from "@/lib/api/withApiHandlers";
 import prisma from "@/lib/prisma";
 import { NextRequest } from "next/server";

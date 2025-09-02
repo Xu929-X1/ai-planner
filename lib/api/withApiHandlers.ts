@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { ok, fail } from './response';
-import { AppError } from './errors';
+import { AppError } from './Errors';
 
 type DynCtx = { params: Promise<Record<string, string>> } | { params: Record<string, string> };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

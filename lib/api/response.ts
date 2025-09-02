@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { AppError } from './errors';
+import { AppError } from './Errors';
 
 export type SuccessBody<T> = {
     success: true;
