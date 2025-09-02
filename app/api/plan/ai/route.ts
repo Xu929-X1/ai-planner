@@ -6,7 +6,7 @@ import { generateTitleFromMessage } from "@/lib/ai/generateTitleFromMsg";
 import { Prisma } from "@/app/generated/prisma";
 import prisma from "@/lib/prisma";
 import { withApiHandler } from "@/lib/api/withApiHandlers";
-import { AppError } from "@/lib/api/Errors";
+import { AppError } from "@/lib/api/errors";
 
 export const POST = withApiHandler(async (req: NextRequest) => {
     try {

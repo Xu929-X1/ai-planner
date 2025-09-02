@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
 import prisma from '@/lib/prisma';
-import { AppError } from '@/lib/api/Errors';
+import { AppError } from '@/lib/api/errors';
 import { withApiHandler } from '@/lib/api/withApiHandlers';
 import { LoginSchema } from '@/lib/api/validators';
 

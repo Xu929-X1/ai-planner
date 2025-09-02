@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { getUserInfo } from "@/app/api/utils";
 import { withApiHandler } from "@/lib/api/withApiHandlers";
-import { AppError } from "@/lib/api/Errors";
+import { AppError } from "@/lib/api/errors";
 //get all tasks and plans under the user
 
 export const GET = withApiHandler(async (req: NextRequest) => {

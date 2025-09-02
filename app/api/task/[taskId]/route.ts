@@ -1,9 +1,9 @@
-import { AppError } from "@/lib/api/Errors";
+import { AppError } from "@/lib/api/errors";
 import { withApiHandler } from "@/lib/api/withApiHandlers";
 import prisma from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-export const GET = withApiHandler(async (req: NextRequest, context?: { params?: Promise<{ taskId?: string }> }) => {
+export const GET = withApiHandler(async (req: NextRequest, context: { params: Record<string, string> }) => {
     try {
         if (!context) {
             throw AppError.badRequest("Task ID is required");
@@ -34,7 +34,7 @@ export const GET = withApiHandler(async (req: NextRequest, context?: { params?: 
     }
 });
 
-export const PUT = withApiHandler(async (req: NextRequest, context?: { params?: Promise<{ taskId?: string }> }) => {
+export const PUT = withApiHandler(async (req: NextRequest,context: { params: Record<string, string> }) => {
     try {
         if (!context) {
             throw AppError.badRequest("Task ID is required");
@@ -68,7 +68,7 @@ export const PUT = withApiHandler(async (req: NextRequest, context?: { params?: 
     }
 });
 
-export const DELETE = withApiHandler(async (req: NextRequest, context?: { params?: Promise<{ taskId?: string }> }) => {
+export const DELETE = withApiHandler(async (req: NextRequest, context: { params: Record<string, string> }) => {
     try {
         if (!context) {
             throw AppError.badRequest("Task ID is required");

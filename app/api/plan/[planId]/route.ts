@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { withApiHandler } from "@/lib/api/withApiHandlers";
-import { AppError } from "@/lib/api/Errors";
+import { AppError } from "@/lib/api/errors";
 
-export const GET = withApiHandler(async (req: NextRequest, context?: { params?: Promise<{ [key: string]: string }> }) => {
+export const GET = withApiHandler(async (req: NextRequest, context: { params: Record<string, string> }) => {
     try {
 
         if (!context) {
@@ -33,7 +33,7 @@ export const GET = withApiHandler(async (req: NextRequest, context?: { params?: 
     }
 })
 
-export const PUT = withApiHandler(async (req: NextRequest, context?: { params?: Promise<{ [key: string]: string }> }) => {
+export const PUT = withApiHandler(async (req: NextRequest, context: { params: Record<string, string> }) => {
     try {
         if (!context) {
             throw AppError.badRequest("Plan ID is required");
@@ -67,7 +67,7 @@ export const PUT = withApiHandler(async (req: NextRequest, context?: { params?: 
     }
 })
 
-export const DELETE = withApiHandler(async (req: NextRequest, context?: { params?: Promise<{ [key: string]: string }> }) => {
+export const DELETE = withApiHandler(async (req: NextRequest, context: { params: Record<string, string> }) => {
     try {
         if (!context) {
             throw AppError.badRequest("Plan ID is required");

@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { getUserInfo } from "../utils";
 import { withApiHandler } from "@/lib/api/withApiHandlers";
-import { AppError } from "@/lib/api/Errors";
+import { AppError } from "@/lib/api/errors";
 
 export const GET = withApiHandler(async (req: NextRequest) => {
     try {
