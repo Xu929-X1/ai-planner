@@ -109,7 +109,7 @@ export default function Register() {
                             </div>
                             <div className="grid gap-2">
                                 <label htmlFor="name" className="text-sm font-medium">How do you wish us to call you?</label>
-                                <PasswordInput
+                                <Input
                                     id="name"
                                     name='name'
                                     placeholder="Please confirm your password"

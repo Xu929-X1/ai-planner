@@ -4,8 +4,9 @@ import React from 'react'
 export default function page() {
     return (
         <>
-            <PlanCard />
-            123
+            <PlanCard
+                title="Free"
+            />
         </>
     )
 }

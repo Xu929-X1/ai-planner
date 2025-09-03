@@ -22,7 +22,7 @@ export default function FlowPage() {
 
     return (
         <ReactFlowProvider>
-            <div className="h-[calc(100vh-64px)]">
+            <div className="h-[calc(100vh-64px)] w-[calc(100vw-64px)]">
                 <ReactFlow
                     defaultNodes={nodes}
                     defaultEdges={edges}

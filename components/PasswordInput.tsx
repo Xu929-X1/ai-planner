@@ -10,12 +10,9 @@ export default function PasswordInput(props: React.InputHTMLAttributes<HTMLInput
             <Input type={
                 showPassword ? 'text' : 'password'
             } {...props} className='pr-10' />
-            <Button
-                type="button"
+            <div
                 onClick={() => setShowPassword(!showPassword)}
-                variant="ghost"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-transparent"
-
+                className="absolute text-center right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-transparent"
             >
                 {
                     showPassword ? <VisibilityOffIcon sx={{
@@ -28,7 +25,7 @@ export default function PasswordInput(props: React.InputHTMLAttributes<HTMLInput
                         }
                     }} />
                 }
-            </Button>
+            </div>
         </div>
     )
 }
