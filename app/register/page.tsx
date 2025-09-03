@@ -19,6 +19,7 @@ async function handleRegister(prevState: State, formData: FormData): Promise<Sta
     try {
         const email = formData.get("email");
         const password = formData.get("password");
+        const name = formData.get("name");
         const confirmPassword = formData.get("confirm-password");
         if (!email || !password || !confirmPassword) {
             return { error: 'Email, password, and confirm password are required' };
@@ -31,7 +32,8 @@ async function handleRegister(prevState: State, formData: FormData): Promise<Sta
         const response = await axios.post(endpoints.auth.register.post, {
             body: {
                 email,
-                password
+                password,
+                name: name || ""
             }
         });
 
@@ -100,6 +102,16 @@ export default function Register() {
                                 <PasswordInput
                                     id="confirm-password"
                                     name='confirm-password'
+                                    placeholder="Please confirm your password"
+                                    required
+                                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <label htmlFor="name" className="text-sm font-medium">How do you wish us to call you?</label>
+                                <Input
+                                    id="name"
+                                    name='name'
                                     placeholder="Please confirm your password"
                                     required
                                     className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

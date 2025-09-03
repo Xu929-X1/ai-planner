@@ -63,7 +63,7 @@ export default function Page() {
     useEffect(() => {
         if (selectedConversation) {
             // Fetch messages for the selected conversation
-            axios.get<{data: ChatMessage[]}>(`${endpoints.chat.allChat.get}/${selectedConversation.id}`)
+            axios.get<{ data: ChatMessage[] }>(`${endpoints.chat.allChat.get}/${selectedConversation.id}`)
                 .then(res => {
                     setMessages(res.data.data)
                 })
@@ -76,7 +76,7 @@ export default function Page() {
     }, [selectedConversation])
 
     async function getAllConversations() {
-        const res = await axios.get<{data: Conversation[]}>(endpoints.chat.allChat.get)
+        const res = await axios.get<{ data: Conversation[] }>(endpoints.chat.allChat.get)
         setAllConversations(res.data.data.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()))
     }
 
@@ -93,8 +93,9 @@ export default function Page() {
             sessionId: selectedConversation?.sessionId
         })
 
-        const json = res.data
-        const { type } = json.data
+        const json = res.data.data;
+        const { type } = json.data;
+
 
         let aiMessage: ChatMessage
         if (type === 'clarification') {

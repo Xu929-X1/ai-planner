@@ -6,8 +6,15 @@ import { NextRequest } from 'next/server';
 
 export const POST = withApiHandler(async (req: NextRequest) => {
     try {
-        const requestBody = await req.json();
-        const { email, password } = (requestBody);
+        const requestBody: {
+            body: {
+                email: string,
+                password: string,
+                name?: string
+            }
+        } = await req.json();
+        const { email, password, name } = (requestBody.body);
+        console.log('Received registration request for email:', email, 'name:', name, 'password length:', password ? password.length : 0);
         if (!email || !password) {
             throw AppError.badRequest('Email and password are required');
         }
@@ -23,7 +30,8 @@ export const POST = withApiHandler(async (req: NextRequest) => {
         const newuser = await prisma.user.create({
             data: {
                 email,
-                password: hashedPassword
+                password: hashedPassword,
+                name: name
             }
         });
         if (newuser) {
