@@ -12,6 +12,7 @@ import Link from 'next/link'
 import { UserContext } from '@/contexts/userContext'
 import { useNotification } from '@/contexts/NotificationContext'
 import axios from 'axios'
+import { useSession } from 'next-auth/react'
 
 type State = {
   error?: string
@@ -23,7 +24,8 @@ export default function Login() {
   const [state, formAction] = useActionState(handleLogin, {})
   const router = useRouter();
   const userContextInstance = useContext(UserContext)
-
+  const { data } = useSession()
+  console.log("Session data:", data);
   useEffect(() => {
     if (userContextInstance.user) {
       router.push("/chat");
@@ -61,7 +63,30 @@ export default function Login() {
   }
 
   function handleLoginWithGoogle() {
-    // Logic for Google login 
+
+    const oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
+    const form = document.createElement('form');
+    form.setAttribute('method', 'GET'); // Send as a GET request.
+    form.setAttribute('action', oauth2Endpoint);
+    const params = {
+      'client_id': "183173323283-t9c3b0p4bqqqvdlh1dal614nb1su31or.apps.googleusercontent.com",
+      'redirect_uri': 'YOUR_REDIRECT_URI',
+      'response_type': 'token',
+      'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/calendar.readonly',
+      'include_granted_scopes': 'true',
+      'state': 'pass-through value'
+    };
+
+    for (const p in params) {
+      const input = document.createElement('input');
+      input.setAttribute('type', 'hidden');
+      input.setAttribute('name', p);
+      input.setAttribute('value', params[p as keyof typeof params] ?? '');
+      form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
   }
 
   return (
@@ -113,7 +138,7 @@ export default function Login() {
             <Button type="submit" className="w-full" >
               Login
             </Button>
-            <Button className="w-full" onClick={handleLoginWithGoogle}>
+            <Button className="w-full" data-onsuccess="onSignIn" onClick={handleLoginWithGoogle} >
               <div className="flex items-center">
                 <GoogleIcon className="transition-opacity duration-300 hover:opacity-100" />
                 <span className="ml-2">Login with Google</span>
