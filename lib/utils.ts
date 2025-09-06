@@ -26,3 +26,16 @@ export function safeParseContent(content: string | undefined | null): ChatParsed
     return { type: 'user', message: content ?? '' };
   }
 }
+
+export async function sha256(buf: BufferSource) {
+  return crypto.subtle.digest('SHA-256', buf);
+}
+
+export function base64url(buf: ArrayBuffer) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+export function randomString(len = 64) {
+  const arr = new Uint8Array(len); crypto.getRandomValues(arr);
+  return Array.from(arr, x => ('0' + x.toString(16)).slice(-2)).join('');
+}

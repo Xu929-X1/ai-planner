@@ -11,26 +11,65 @@ import PasswordInput from '@/components/PasswordInput'
 import Link from 'next/link'
 import { UserContext } from '@/contexts/userContext'
 import { useNotification } from '@/contexts/NotificationContext'
-import axios from 'axios'
-import { useSession } from 'next-auth/react'
+import axios, { AxiosError } from 'axios'
+import { base64url, randomString, sha256 } from '@/lib/utils'
 
 type State = {
   error?: string
 }
 
+// type GoogleLoginRespType = {
+//   access_token: string;
+//   expires_in: number;
+//   refresh_token: string;
+//   scope: string;
+//   token_type: string;
+//   id_token: string;
+//   refresh_token_expires_in: number;
+// };
+
+// type GoogleUserProfileRespType = {
+//   email: string;
+//   email_verified: boolean;
+//   family_name: string;
+//   given_name: string;
+//   name: string;
+//   picture: string;
+//   sub: string;
+// };
 
 export default function Login() {
   const notificationContext = useNotification();
   const [state, formAction] = useActionState(handleLogin, {})
   const router = useRouter();
-  const userContextInstance = useContext(UserContext)
-  const { data } = useSession()
-  console.log("Session data:", data);
+  const userContextInstance = useContext(UserContext);
+
   useEffect(() => {
     if (userContextInstance.user) {
       router.push("/chat");
     }
   }, [userContextInstance.user])
+
+  useEffect(() => {
+    const params = new URL(window.location.href).searchParams
+    const code = params.get("code");
+    const pkceVerifier = sessionStorage.getItem("pkce_verifier");
+
+    if (code && pkceVerifier) {
+      axios.post(endpoints.auth.google.callback.post, {
+        code,
+        codeVerifier: pkceVerifier,
+        redirectUri: `${window.location.origin}/login`
+      }).then((res) => {
+        console.log(res);
+      }).catch((e: AxiosError) => {
+        console.log(e);
+      }).finally(() => {
+
+      });
+    }
+  }, [])
+
 
   function handleSignUp() {
     router.push('/register');
@@ -62,31 +101,31 @@ export default function Login() {
     }
   }
 
-  function handleLoginWithGoogle() {
+  async function handleLoginWithGoogle() {
+    const clientId = '183173323283-t9c3b0p4bqqqvdlh1dal614nb1su31or.apps.googleusercontent.com';
+    const redirectUri = `${window.location.origin}/login`;
+    const verifier = randomString(64);
+    sessionStorage.setItem('pkce_verifier', verifier);
 
-    const oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
-    const form = document.createElement('form');
-    form.setAttribute('method', 'GET'); // Send as a GET request.
-    form.setAttribute('action', oauth2Endpoint);
-    const params = {
-      'client_id': "183173323283-t9c3b0p4bqqqvdlh1dal614nb1su31or.apps.googleusercontent.com",
-      'redirect_uri': 'YOUR_REDIRECT_URI',
-      'response_type': 'token',
-      'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/calendar.readonly',
-      'include_granted_scopes': 'true',
-      'state': 'pass-through value'
-    };
+    const challenge = base64url(await sha256(new TextEncoder().encode(verifier)));
 
-    for (const p in params) {
-      const input = document.createElement('input');
-      input.setAttribute('type', 'hidden');
-      input.setAttribute('name', p);
-      input.setAttribute('value', params[p as keyof typeof params] ?? '');
-      form.appendChild(input);
-    }
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: [
+        'openid', 'email', 'profile',
+        'https://www.googleapis.com/auth/calendar.readonly'
+      ].join(' '),
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+      access_type: 'offline',
+      prompt: 'consent',
+      include_granted_scopes: 'true',
+      state: 'pass-through value'
+    });
 
-    document.body.appendChild(form);
-    form.submit();
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
   }
 
   return (
