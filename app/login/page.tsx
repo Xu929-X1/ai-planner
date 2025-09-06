@@ -60,12 +60,10 @@ export default function Login() {
         code,
         codeVerifier: pkceVerifier,
         redirectUri: `${window.location.origin}/login`
-      }).then((res) => {
-        console.log(res);
+      }).then(() => {
+        router.push('/chat')
       }).catch((e: AxiosError) => {
         console.log(e);
-      }).finally(() => {
-
       });
     }
   }, [])

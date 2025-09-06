@@ -8,7 +8,10 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-        await jose.jwtVerify(token, new TextEncoder().encode(process.env.JWT_SECRET || 'default_secret'));
+        if (!process.env.JWT_SECRET) {
+            throw Error("JWT Secret not configiured")
+        }
+        await jose.jwtVerify(token, new TextEncoder().encode(process.env.JWT_SECRET));
         return NextResponse.next();
     } catch (error) {
         console.error('JWT verification failed:', error);

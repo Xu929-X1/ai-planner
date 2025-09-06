@@ -1,27 +1,11 @@
 import { NextRequest } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers';
-import * as jose from 'jose';
 import prisma from '@/lib/prisma';
 import { AppError } from '@/lib/api/Errors';
 import { withApiHandler } from '@/lib/api/withApiHandlers';
 import { LoginSchema } from '@/lib/api/validators';
-
-type UserPayload = {
-    id: number;
-    email: string;
-}
-
-async function generateToken(payload: UserPayload, secret: string) {
-    const encoder = new TextEncoder();
-    const jwt = await new jose.SignJWT(payload)
-        .setProtectedHeader({ alg: 'HS256' })
-        .setIssuedAt()
-        .setExpirationTime('2h')
-        .sign(encoder.encode(secret));
-
-    return jwt;
-}
+import { generateToken } from '@/lib/utils';
 
 export const POST = withApiHandler(async (req: NextRequest) => {
     try {
@@ -46,7 +30,7 @@ export const POST = withApiHandler(async (req: NextRequest) => {
             throw AppError.notFound();
         }
 
-        const isValid = await bcrypt.compare(password, user.password)
+        const isValid = await bcrypt.compare(password, user.password ?? "")
         if (!isValid) {
             throw AppError.unauthorized('Invalid email or password');
         }
