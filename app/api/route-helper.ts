@@ -8,6 +8,11 @@ export const endpoints = {
         },
         logout: {
             post: "/api/auth/logout"
+        },
+        google: {
+            callback: {
+                post: "/api/auth/google/callback"
+            }
         }
     },
     user: {
