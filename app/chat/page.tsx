@@ -195,6 +195,7 @@ export default function Page() {
                         <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0">
                             <DropdownMenuItem onClick={() => {
                                 axios.post(endpoints.auth.logout.post).then(() => {
+                                    userContextInstance.clearUser();
                                     router.push('/login')
                                 });
                             }}>
