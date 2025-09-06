@@ -1,7 +1,7 @@
 'use client'
 import { endpoints } from '@/app/api/route-helper'
 import axios from 'axios'
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 type UserType = {
   email: string,
@@ -12,13 +12,17 @@ type UserType = {
 type UserContextType = {
   user: UserType | undefined,
   isLoading: boolean,
-  getUserInfo: () => Promise<void>
+  getUserInfo: () => Promise<void>,
+  refreshUser: () => Promise<void>,
+  clearUser: () => void
 }
 
 export const UserContext = createContext<UserContextType>({
   user: undefined,
   isLoading: false,
-  getUserInfo: async () => { }
+  getUserInfo: async () => { },
+  refreshUser: async () => { },
+  clearUser: () => { }
 })
 
 
@@ -28,7 +32,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     getUser();
   }, [])
-  async function getUser() {
+  const getUser = useCallback(async () => {
     try {
       setIsLoading(true)
       const res = await axios.get<{ data: UserType }>(endpoints.user.self.get, { withCredentials: true });
@@ -40,12 +44,22 @@ export default function UserProvider({ children }: { children: React.ReactNode }
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    await getUser();
+  }, [getUser]);
+
+  const clearUser = useCallback(() => {
+    setUserInfo(undefined);
+  }, []);
   return (
     <UserContext.Provider value={{
       user: userInfo,
       isLoading: isLoading,
-      getUserInfo: getUser
+      getUserInfo: getUser,
+      refreshUser,
+      clearUser
     }}>
       {
         children

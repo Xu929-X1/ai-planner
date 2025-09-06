@@ -11,24 +11,64 @@ import PasswordInput from '@/components/PasswordInput'
 import Link from 'next/link'
 import { UserContext } from '@/contexts/userContext'
 import { useNotification } from '@/contexts/NotificationContext'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
+import { base64url, randomString, sha256 } from '@/lib/utils'
 
 type State = {
   error?: string
 }
 
+// type GoogleLoginRespType = {
+//   access_token: string;
+//   expires_in: number;
+//   refresh_token: string;
+//   scope: string;
+//   token_type: string;
+//   id_token: string;
+//   refresh_token_expires_in: number;
+// };
+
+// type GoogleUserProfileRespType = {
+//   email: string;
+//   email_verified: boolean;
+//   family_name: string;
+//   given_name: string;
+//   name: string;
+//   picture: string;
+//   sub: string;
+// };
 
 export default function Login() {
   const notificationContext = useNotification();
   const [state, formAction] = useActionState(handleLogin, {})
   const router = useRouter();
-  const userContextInstance = useContext(UserContext)
+  const userContextInstance = useContext(UserContext);
 
   useEffect(() => {
     if (userContextInstance.user) {
       router.push("/chat");
     }
   }, [userContextInstance.user])
+
+  useEffect(() => {
+    const params = new URL(window.location.href).searchParams
+    const code = params.get("code");
+    const pkceVerifier = sessionStorage.getItem("pkce_verifier");
+
+    if (code && pkceVerifier) {
+      axios.post(endpoints.auth.google.callback.post, {
+        code,
+        codeVerifier: pkceVerifier,
+        redirectUri: `${window.location.origin}/login`
+      }).then(() => {
+        router.push('/chat');
+        userContextInstance.refreshUser();
+      }).catch((e: AxiosError) => {
+        console.log(e);
+      });
+    }
+  }, [])
+
 
   function handleSignUp() {
     router.push('/register');
@@ -60,8 +100,31 @@ export default function Login() {
     }
   }
 
-  function handleLoginWithGoogle() {
-    // Logic for Google login 
+  async function handleLoginWithGoogle() {
+    const clientId = '183173323283-t9c3b0p4bqqqvdlh1dal614nb1su31or.apps.googleusercontent.com';
+    const redirectUri = `${window.location.origin}/login`;
+    const verifier = randomString(64);
+    sessionStorage.setItem('pkce_verifier', verifier);
+
+    const challenge = base64url(await sha256(new TextEncoder().encode(verifier)));
+
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: [
+        'openid', 'email', 'profile',
+        'https://www.googleapis.com/auth/calendar.readonly'
+      ].join(' '),
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+      access_type: 'offline',
+      prompt: 'consent',
+      include_granted_scopes: 'true',
+      state: 'pass-through value'
+    });
+
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
   }
 
   return (
@@ -113,7 +176,7 @@ export default function Login() {
             <Button type="submit" className="w-full" >
               Login
             </Button>
-            <Button className="w-full" onClick={handleLoginWithGoogle}>
+            <Button className="w-full" data-onsuccess="onSignIn" onClick={handleLoginWithGoogle} >
               <div className="flex items-center">
                 <GoogleIcon className="transition-opacity duration-300 hover:opacity-100" />
                 <span className="ml-2">Login with Google</span>

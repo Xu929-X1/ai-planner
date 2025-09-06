@@ -21,15 +21,30 @@ enum Role {
 }
 
 model User {
-    id           Int            @id @default(autoincrement())
-    email        String         @unique
-    name         String?
-    createdAt    DateTime       @default(now())
-    updatedAt    DateTime       @updatedAt
-    password     String
-    Tasks        Task[]
-    Plan         Plan[]
-    Conversation Conversation[]
+    id                  Int                    @id @default(autoincrement())
+    email               String                 @unique
+    name                String?
+    createdAt           DateTime               @default(now())
+    updatedAt           DateTime               @updatedAt
+    password            String?
+    Tasks               Task[]
+    Plan                Plan[]
+    Conversation        Conversation[]
+    AuthProviderAccount AuthProviderAccounts[]
+}
+
+model AuthProviderAccounts {
+    id             String    @id @default(cuid())
+    userId         Int       @map("user_id")
+    provider       String
+    providerUserId String    @map("provider_user_id")
+    accessToken    String?   @map("access_token")
+    expiresAt      DateTime? @map("expires_at")
+
+    user User @relation(fields: [userId], references: [id])
+
+    @@unique([provider, providerUserId])
+    @@map("auth_provider_accounts")
 }
 
 model Plan {
