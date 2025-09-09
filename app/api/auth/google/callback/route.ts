@@ -78,12 +78,14 @@ export const POST = withApiHandler(async (req: NextRequest) => {
                     typeof tokens.expires_in === 'number'
                         ? new Date(Date.now() + tokens.expires_in * 1000)
                         : null,
+                refreshToken: tokens.refresh_token,
                 user: { connect: { id: dbUser.id } },
             },
             create: {
                 provider: 'google',
                 providerUserId: user.sub,
                 accessToken: tokens.access_token ?? null,
+                refreshToken: tokens.refresh_token,
                 expiresAt:
                     typeof tokens.expires_in === 'number'
                         ? new Date(Date.now() + tokens.expires_in * 1000)

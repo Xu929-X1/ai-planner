@@ -43,6 +43,10 @@ export const endpoints = {
     chat: {
         allChat: {
             get: "/api/chat"
+        },
+        chat: {
+            get: '/api/chat',
+            delete: (conversationId: number)=>`/api/chat/${conversationId}`
         }
     }
 }

@@ -3,9 +3,10 @@ import React from "react";
 type OverlaySpinnerProps = {
     spinning: boolean;
     children: React.ReactNode;
+    tip?: string
 };
 
-export function Spinner({ spinning, children }: OverlaySpinnerProps) {
+export function Spinner({ spinning, children, tip }: OverlaySpinnerProps) {
     return (
         <div className="relative h-full">
             {children}
@@ -16,6 +17,7 @@ export function Spinner({ spinning, children }: OverlaySpinnerProps) {
                     {/* Spinner */}
                     <div className="absolute inset-0 flex items-center justify-center z-20">
                         <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+                        {tip}
                     </div>
                 </>
             )}

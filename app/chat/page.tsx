@@ -1,6 +1,6 @@
 'use client'
 
-import { PanelLeftClose, PanelLeftOpen, FilePenLine } from 'lucide-react'
+import { PanelLeftClose, PanelLeftOpen, FilePenLine, Eye } from 'lucide-react'
 import { Button } from '@/components/UI/button'
 import { Textarea } from '@/components/UI/textarea'
 import { useContext, useEffect, useState } from 'react'
@@ -11,6 +11,7 @@ import { UserContext } from '@/contexts/userContext'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/UI/dropdown-menu'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { ConversationRow } from '@/components/ConversationRow'
 
 type ChatMessageBase = {
     id?: string
@@ -28,7 +29,7 @@ export type ChatParsedContent =
     | { type: 'plan'; plan: string; tasks: Task[] }
     | { type: "user", message: string }
 
-type Task = {
+export type Task = {
     id: string
     description: string
     status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
@@ -36,7 +37,7 @@ type Task = {
 }
 
 
-interface Conversation {
+export type Conversation =  {
     id: number
     title: string
     archived: boolean
@@ -141,14 +142,18 @@ export default function Page() {
         <div className="flex h-screen w-full overflow-hidden">
             <div
                 className={`
-          hidden md:block transition-all duration-300 border-r bg-background
-          ${sidebarVisible ? 'w-64' : 'w-0'}
-        `}>
-                <div className={`
-            h-full overflow-y-auto px-4 py-4 transition-opacity duration-300
-            ${sidebarVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-          `}>
-                    <div className="flex justify-between items-center mb-4 text-start">
+    hidden md:flex h-screen flex-col transition-all duration-300 border-r bg-background
+    ${sidebarVisible ? 'w-64' : 'w-0'}
+  `}
+                aria-hidden={!sidebarVisible}
+            >
+                <div
+                    className={`
+      flex h-full w-full flex-col px-4 py-4 transition-opacity duration-300
+      ${sidebarVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+    `}
+                >
+                    <div className="mb-3 flex items-center justify-between">
                         <h2 className="text-sm font-semibold text-muted">Conversations</h2>
                         <Button
                             variant="ghost"
@@ -156,55 +161,74 @@ export default function Page() {
                             onClick={() => setSidebarVisible(false)}
                             className="text-muted-foreground"
                         >
-                            <PanelLeftClose className="w-4 h-4" />
+                            <PanelLeftClose className="h-4 w-4" />
                         </Button>
                     </div>
 
-                    <div className="space-y-2">
-                        <div className='w-full flex justify-start items-center mb-2'>
+                    <div className="mb-2">
+                        <Button
+                            className="w-full justify-start gap-2 hover:bg-muted text-muted-foreground"
+                            onClick={() => setSelectedConversation(null)}
+                        >
+                            <FilePenLine className="h-4 w-4" />
+                            New Conversation
+                        </Button>
+                    </div>
+                    <div className="mb-2">
+                        <Button
+                            className="w-full justify-start gap-2 hover:bg-muted text-muted-foreground"
+                            onClick={() => router.push('/flow')}
+                        >
+                            <Eye />
+                            View Flow
+                        </Button>
+                    </div>
 
-                            <Button
-                                className="hover:bg-muted text-muted-foreground "
-                                onClick={() => setSelectedConversation(null)}
-                            >
-                                <FilePenLine />
-                            </Button>
-                        </div>
+                    <div className="flex-1 overflow-y-auto space-y-2 pb-2">
                         {allConversations.map((conv) => (
-                            <div
+                            <ConversationRow
                                 key={conv.id}
-                                onClick={() => setSelectedConversation(conv)}
-                                className={`p-2 rounded cursor-pointer text-start text-sm ${selectedConversation?.id === conv.id ? 'bg-muted' : 'hover:bg-muted'
-                                    }`}
-                            >
-                                {conv.title}
-                            </div>
+                                conv={conv}
+                                active={selectedConversation?.id === conv.id}
+                                onSelect={setSelectedConversation}
+                                onArchive={(id) => {/* ... */ }}
+                                onDelete={(id) => {/* ... */ }}
+                            />
                         ))}
                     </div>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger className="flex items-center w-full">
-                            <div className="hover:bg-muted cursor-pointer rounded-sm flex items-center justify-between px-2 py-2 flex-1">
-                                <h4 className="text-left flex-1">
-                                    {userContextInstance.user?.name}
-                                </h4>
-                                <div className="ml-2 flex-shrink-0">
-                                    {generateSVG(userContextInstance.user?.name ?? "", { size: 32, rounded: true })}
+
+                    <div className="mt-auto pt-2 border-t mb-4">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger className="flex w-full items-center">
+                                <div className="flex w-full items-center justify-between rounded-sm px-2 py-2 hover:bg-muted">
+                                    <h4 className="flex-1 text-left">
+                                        {userContextInstance.user?.name}
+                                    </h4>
+                                    <div className="ml-2 shrink-0">
+                                        {generateSVG(userContextInstance.user?.name ?? '', { size: 32, rounded: true })}
+                                    </div>
                                 </div>
-                            </div>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0">
-                            <DropdownMenuItem onClick={() => {
-                                axios.post(endpoints.auth.logout.post).then(() => {
-                                    userContextInstance.clearUser();
-                                    router.push('/login')
-                                });
-                            }}>
-                                Logout
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="start"
+                                className="min-w-0 w-[var(--radix-dropdown-menu-trigger-width)]"
+                            >
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        axios.post(endpoints.auth.logout.post).then(() => {
+                                            userContextInstance.clearUser();
+                                            router.push('/login');
+                                        });
+                                    }}
+                                >
+                                    Logout
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
             </div>
+
             {
                 !sidebarVisible && (
                     <Button

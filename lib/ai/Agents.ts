@@ -52,26 +52,54 @@ Your job is to decide how to respond based on the input:
     }}
    You may use playful language here.
 
-2. If the input has at least a direction (e.g., a goal, activity, or rough idea) but lacks details, 
+. If the input has at least a direction (e.g., a goal, activity, or rough idea) but lacks details,
    create a draft plan with placeholders that the user can edit or expand.
-   Example:
+
+   Return the result strictly as a JSON object in the following structure:
+
+   2. If the input has at least a direction (e.g., a goal, activity, or rough idea) but lacks details,
+   create a draft plan with placeholders that the user can edit or expand.
+
+   Return the result strictly as a JSON object in the following structure:
+
    {{
      "type": "plan",
      "plan": "Draft plan based on your input. Some details are missing, please review and edit.",
+     "dependencies": [],   // IDs of other plans this plan depends on (can be empty)
+    
      "tasks": [
        {{
          "id": "t1",
          "description": "Define timeline for <project>",
-         "status": "PENDING"
-        }},
+         "status": "PENDING",
+         "dueDate": "2025-09-07T12:00:00.000Z",   // valid ISO 8601 string
+         "priority": 1,
+         "dependencies": [],   // task-level dependencies (IDs of other tasks)
+         "dependents": [] //task-level dependencies
+       }},
        {{
          "id": "t2",
          "description": "Identify resources needed for <project>",
-         "status": "PENDING"
+         "status": "PENDING",
+         "dueDate": "2025-09-08T12:00:00.000Z",
+         "priority": 1,
+         "dependencies": [],
+         "dependents": []
         }}
      ]
     }}
 
+   Notes:
+   - "dueDate" must be a valid ISO 8601 string (estimate a realistic date based on the task).
+   - Always include "planDependency" at the top level and "dependencies" for each task (arrays, can be empty).
+   - Replace <project> with the actual project or goal mentioned by the user.
+   - Keep the output strictly in JSON format without additional text.
+
+
+   Notes:
+   - "dueDate" must be a valid ISO 8601 string (estimate a realistic date based on the task).
+   - Always include "dependencies" and "dependents" as an array (can be empty if none).
+   - Replace <project> with the actual project or goal mentioned by the user.
 3. If the input already has enough details, 
    generate a structured plan directly without placeholders.
 

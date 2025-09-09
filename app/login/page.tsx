@@ -4,7 +4,7 @@ import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader,
 import { Input } from '@/components/UI/input'
 import { Label } from '@/components/UI/label'
 import { useRouter } from 'next/navigation'
-import React, { useActionState, useContext, useEffect } from 'react'
+import React, { useActionState, useContext, useEffect, useState } from 'react'
 import GoogleIcon from '@mui/icons-material/Google';
 import { endpoints } from '../api/route-helper'
 import PasswordInput from '@/components/PasswordInput'
@@ -13,37 +13,18 @@ import { UserContext } from '@/contexts/userContext'
 import { useNotification } from '@/contexts/NotificationContext'
 import axios, { AxiosError } from 'axios'
 import { base64url, randomString, sha256 } from '@/lib/utils'
+import { Spinner } from '@/components/Spinner'
 
 type State = {
   error?: string
 }
-
-// type GoogleLoginRespType = {
-//   access_token: string;
-//   expires_in: number;
-//   refresh_token: string;
-//   scope: string;
-//   token_type: string;
-//   id_token: string;
-//   refresh_token_expires_in: number;
-// };
-
-// type GoogleUserProfileRespType = {
-//   email: string;
-//   email_verified: boolean;
-//   family_name: string;
-//   given_name: string;
-//   name: string;
-//   picture: string;
-//   sub: string;
-// };
 
 export default function Login() {
   const notificationContext = useNotification();
   const [state, formAction] = useActionState(handleLogin, {})
   const router = useRouter();
   const userContextInstance = useContext(UserContext);
-
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     if (userContextInstance.user) {
       router.push("/chat");
@@ -56,6 +37,7 @@ export default function Login() {
     const pkceVerifier = sessionStorage.getItem("pkce_verifier");
 
     if (code && pkceVerifier) {
+      setIsLoading(true);
       axios.post(endpoints.auth.google.callback.post, {
         code,
         codeVerifier: pkceVerifier,
@@ -65,7 +47,9 @@ export default function Login() {
         userContextInstance.refreshUser();
       }).catch((e: AxiosError) => {
         console.log(e);
-      });
+      }).finally(() => {
+        setIsLoading(false);
+      })
     }
   }, [])
 
@@ -77,10 +61,12 @@ export default function Login() {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     try {
+      setIsLoading(true);
       const res = await axios.post(endpoints.auth.login.post, {
         email,
         password
       });
+      setIsLoading(false);
       const status = res.status;
       if (status === 200) {
         router.push("/chat");
@@ -90,9 +76,10 @@ export default function Login() {
         return { error: 'Login failed, please check your credentials.' };
       }
     } catch (error) {
+      setIsLoading(false)
       if (axios.isAxiosError(error) && error.response) {
-        notificationContext.showNotification(`Login Error: ${error.response.data.error}`, "error");
-        return { error: error.response.data.error || 'Login failed' };
+        notificationContext.showNotification(`Login Error: ${error.response.data.error.message}`, "error");
+        return { error: error.response.data.error.message || 'Login failed' };
       } else {
         notificationContext.showNotification(`Login Error: An unexpected error occurred`, "error");
       }
@@ -105,9 +92,7 @@ export default function Login() {
     const redirectUri = `${window.location.origin}/login`;
     const verifier = randomString(64);
     sessionStorage.setItem('pkce_verifier', verifier);
-
     const challenge = base64url(await sha256(new TextEncoder().encode(verifier)));
-
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -128,63 +113,66 @@ export default function Login() {
   }
 
   return (
-    <div className="text-left flex h-screen items-center justify-center w-screen">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account
-          </CardDescription>
-          <CardAction>
-            <Button className='text-accent-foreground' variant="link" onClick={handleSignUp}>Sign Up</Button>
-          </CardAction>
-        </CardHeader>
-        <form action={formAction}>
-          <CardContent className='mb-8'>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  name="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
-                <PasswordInput id="password" name='password' required />
-              </div>
-            </div>
+    <Spinner spinning={isLoading} tip='Please await a moment'>
 
-            {state?.error && (
-              <div className="mt-4 text-red-600">
-                {state.error}
+      <div className="text-left flex h-screen items-center justify-center w-screen">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Login to your account</CardTitle>
+            <CardDescription>
+              Enter your email below to login to your account
+            </CardDescription>
+            <CardAction>
+              <Button className='text-accent-foreground' variant="link" onClick={handleSignUp}>Sign Up</Button>
+            </CardAction>
+          </CardHeader>
+          <form action={formAction}>
+            <CardContent className='mb-8'>
+              <div className="flex flex-col gap-6">
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="m@example.com"
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Password</Label>
+                    <Link
+                      href="#"
+                      className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    >
+                      Forgot your password?
+                    </Link>
+                  </div>
+                  <PasswordInput id="password" name='password' required />
+                </div>
               </div>
-            )}
-          </CardContent>
-          <CardFooter className="flex flex-col gap-2 ">
-            <Button type="submit" className="w-full" >
-              Login
-            </Button>
-            <Button className="w-full" data-onsuccess="onSignIn" onClick={handleLoginWithGoogle} >
-              <div className="flex items-center">
-                <GoogleIcon className="transition-opacity duration-300 hover:opacity-100" />
-                <span className="ml-2">Login with Google</span>
-              </div>
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
-    </div >
+
+              {state?.error && (
+                <div className="mt-4 text-red-600">
+                  {state.error}
+                </div>
+              )}
+            </CardContent>
+            <CardFooter className="flex flex-col gap-2 ">
+              <Button type="submit" className="w-full" >
+                Login
+              </Button>
+              <Button className="w-full" data-onsuccess="onSignIn" onClick={handleLoginWithGoogle} >
+                <div className="flex items-center">
+                  <GoogleIcon className="transition-opacity duration-300 hover:opacity-100" />
+                  <span className="ml-2">Login with Google</span>
+                </div>
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div >
+    </Spinner>
   )
 }
