@@ -191,8 +191,8 @@ export default function Page() {
                                 conv={conv}
                                 active={selectedConversation?.id === conv.id}
                                 onSelect={setSelectedConversation}
-                                onArchive={(id) => {/* ... */ }}
-                                onDelete={(id) => {/* ... */ }}
+                                onArchive={() => {/* ... */ }}
+                                onDelete={() => {/* ... */ }}
                             />
                         ))}
                     </div>
