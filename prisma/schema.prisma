@@ -39,6 +39,7 @@ model AuthProviderAccounts {
     provider       String
     providerUserId String    @map("provider_user_id")
     accessToken    String?   @map("access_token")
+    refreshToken   String?   @map("refresh_token")
     expiresAt      DateTime? @map("expires_at")
 
     user User @relation(fields: [userId], references: [id])
@@ -47,22 +48,48 @@ model AuthProviderAccounts {
     @@map("auth_provider_accounts")
 }
 
+model PlanDependency {
+    id           Int @id @default(autoincrement())
+    planId       Int
+    dependencyId Int
+
+    plan       Plan @relation("PlanDependencies", fields: [planId], references: [id])
+    dependency Plan @relation("PlanDependents", fields: [dependencyId], references: [id])
+
+    @@unique([planId, dependencyId])
+    @@map("plan_dependency")
+}
+
 model Plan {
-    id             Int          @id @default(autoincrement())
+    id             Int              @id @default(autoincrement())
     title          String
     description    String?
     status         StatusCd
-    createdAt      DateTime     @default(now())
-    updatedAt      DateTime     @updatedAt
+    createdAt      DateTime         @default(now())
+    updatedAt      DateTime         @updatedAt
     dueDate        DateTime?
     priority       Int?
     userId         Int
-    user           User         @relation(fields: [userId], references: [id])
+    user           User             @relation(fields: [userId], references: [id])
     Tasks          Task[]
-    conversationId Int          @unique
-    conversation   Conversation @relation(fields: [conversationId], references: [id])
+    conversationId Int              @unique
+    conversation   Conversation     @relation(fields: [conversationId], references: [id])
+    dependencies   PlanDependency[] @relation("PlanDependencies")
+    dependents     PlanDependency[] @relation("PlanDependents")
 
     @@index([conversationId])
+}
+
+model TaskDependency {
+    id           Int @id @default(autoincrement())
+    taskId       Int
+    dependencyId Int
+
+    task       Task @relation("TaskDependencies", fields: [taskId], references: [id])
+    dependency Task @relation("TaskDependents", fields: [dependencyId], references: [id])
+
+    @@unique([taskId, dependencyId])
+    @@map("task_dependency")
 }
 
 model Task {
@@ -80,6 +107,9 @@ model Task {
     plan           Plan?        @relation(fields: [planId], references: [id])
     conversationId Int          @unique
     conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+    dependencies TaskDependency[] @relation("TaskDependencies")
+    dependent    TaskDependency[] @relation("TaskDependents")
 
     @@index([conversationId])
     @@index([planId])

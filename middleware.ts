@@ -30,5 +30,4 @@ export const config = {
         '/chat/:path*',
         '/user/:path*',
     ],
-
 }

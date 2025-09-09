@@ -1,8 +1,10 @@
 import React from 'react'
 import { Card, CardDescription, CardHeader, CardTitle } from './UI/card'
+import { Task } from '@/app/chat/page';
 
 type PlanCardProps = {
     title: string,
+    tasks: Task[]
 }
 
 export default function PlanCard(props: PlanCardProps) {
