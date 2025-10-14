@@ -216,9 +216,8 @@ export default function Page() {
     };
 
     const saveAdjustments = async () => {
-        // Optional: POST adjustments to your backend. Fallback: keep local.
         try {
-            await axios.post(endpoints.plan.update?.put(1) ?? "/api/plan/apply-adjustments", {
+            await axios.put(endpoints.plan.update?.put(selectedConversation?.id ?? 0), {
                 conversationId: selectedConversation?.id,
                 plan: focusTitle,
                 tasks: focusTasks,

@@ -3,6 +3,7 @@ import { Circle, CheckCircle2, Keyboard, Pencil, Save, X } from 'lucide-react';
 import { Button } from '@/components/UI/button'
 import { Textarea } from '@/components/UI/textarea'
 import { Task } from './page';
+import { Input } from '@/components/UI/input';
 type FocusModeOverlayProps = {
     focusTitle: string,
     setFocusTitle: React.Dispatch<React.SetStateAction<string>>,
@@ -72,16 +73,16 @@ export default function FocusModeOverlay(props: FocusModeOverlayProps) {
                         <ul className="space-y-2">
                             {focusTasks.map((t) => (
                                 <li key={t.id} className="flex items-start gap-3 rounded-xl border border-gray-700 p-3 bg-[#23232a]">
-                                    <button
+                                    <Button
                                         onClick={() => updateTaskStatus(t.id.toString())}
                                         className="mt-1 w-5 h-5 rounded-full border border-gray-700 flex items-center justify-center bg-gray-900"
                                         title="Toggle status"
                                     >
                                         {t.status === "COMPLETED" ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Circle className="w-4 h-4 text-gray-400" />}
-                                    </button>
+                                    </Button>
                                     <div className="flex-1">
                                         {editMode ? (
-                                            <input
+                                            <Input
                                                 className="w-full bg-transparent outline-none text-gray-100"
                                                 value={t.description}
                                                 onChange={(e) => renameTask(t.id.toString(), e.target.value)}
@@ -89,8 +90,26 @@ export default function FocusModeOverlay(props: FocusModeOverlayProps) {
                                         ) : (
                                             <p className="leading-relaxed">{t.description}</p>
                                         )}
-                                        {t.dueDate && (
-                                            <p className="text-xs text-gray-400 mt-1">Due: {new Date(t.dueDate).toLocaleString()}</p>
+                                        {editMode ? (
+                                            <div className="mt-2 flex items-center gap-2 flex-wrap">
+                                                <input
+                                                    type="datetime-local"
+                                                    className="bg-[#1f1f24] border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+                                                // value={toDatetimeLocal(t.dueDate)}
+                                                // onChange={(e) => setTaskDueDate(t.id, e.target.value)}
+                                                />
+                                                <Button size="sm" variant="ghost" className="h-7 text-xs text-gray-300" >
+                                                    -30m
+                                                </Button>
+                                                <Button size="sm" variant="ghost" className="h-7 text-xs text-gray-300" >
+                                                    +30m
+                                                </Button>
+                                                <Button size="sm" variant="ghost" className="h-7 text-xs text-gray-300" >
+                                                    +1h
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            t.dueDate ? <p className="text-xs text-gray-400 mt-1">Due: {new Date(t.dueDate).toLocaleString()}</p> : null
                                         )}
                                     </div>
                                     <span
