@@ -8,80 +8,137 @@ import prisma from "@/lib/prisma";
 import { withApiHandler } from "@/lib/api/withApiHandlers";
 import { AppError } from "@/lib/api/Errors";
 
+type AgentResponse =
+    | string
+    | {
+        type?: "clarification" | "plan" | string;
+        [k: string]: unknown;
+    };
+
+const toRaw = (resp: AgentResponse) =>
+    typeof resp === "string" ? resp : JSON.stringify(resp);
+
+const getParsedType = (resp: AgentResponse) => {
+    if (typeof resp === "string") return "MESSAGE";
+    if (resp?.type === "clarification") return "MESSAGE";
+    if (resp?.type === "plan") return "PLAN";
+    return "ERROR";
+};
+
+async function logRun(conversationId: number, userPrompt: string, resp: AgentResponse) {
+    await persistRun({
+        convId: conversationId,
+        input: userPrompt,
+        raw: toRaw(resp),
+        parsedType: getParsedType(resp),
+    });
+}
+
+async function appendTurn(conversationId: number, userPrompt: string, resp: AgentResponse) {
+    await Promise.all([
+        saveMessages(conversationId, "USER", userPrompt),
+        saveMessages(conversationId, "ASSISTANT", toRaw(resp)),
+    ]);
+    await logRun(conversationId, userPrompt, resp);
+}
+
+async function createConversationWithRetry(params: {
+    userId: number;
+    title: string;
+    userPrompt: string;
+    resp: AgentResponse;
+    maxAttempts?: number;
+}) {
+    const { userId, title, userPrompt, resp, maxAttempts = 3 } = params;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const newSessionId = crypto.randomUUID();
+
+        try {
+            const conversation = await prisma.conversation.create({
+                data: {
+                    userId,
+                    title,
+                    sessionId: newSessionId,
+                    messages: {
+                        create: [
+                            { role: "USER", content: userPrompt },
+                            { role: "ASSISTANT", content: toRaw(resp) },
+                        ],
+                    },
+                },
+            });
+
+            await logRun(conversation.id, userPrompt, resp);
+            return conversation;
+        } catch (e: unknown) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+                continue;
+            }
+            throw e;
+        }
+    }
+
+    throw new Error("Failed to create conversation after retries (P2002).");
+}
 export const POST = withApiHandler(async (req: NextRequest) => {
     try {
-        const request = await req.json();
-        const userPrompt = request.body;
-        const conversationId = request.conversationId;
-        const sessionId = request.sessionId;
-        if (typeof userPrompt !== 'string') {
-            throw AppError.badRequest('Invalid input: userPrompt must be a string');
+        const payload = await req.json();
+        const userPrompt: unknown = payload.body;
+        const conversationId: number | undefined = payload.conversationId;
+        const incomingSessionId: string | undefined = payload.sessionId;
+
+        if (typeof userPrompt !== "string") {
+            throw AppError.badRequest("Invalid input: userPrompt must be a string");
         }
+
         const user = await getUserInfo(req);
-        let agentResponse;
-        if (sessionId) {
-            const convoContext = await getConvoContext(sessionId, Number(user.id));
+        const userId = Number(user.id);
+
+        let agentResponse: AgentResponse;
+
+        if (incomingSessionId) {
+            const convoContext = await getConvoContext(incomingSessionId, userId);
             const agentRunArray = convoContext.agentRuns;
+            console.log("Agent Runs:", agentRunArray);
+
             agentResponse = await runPlannerWithAutoSummary(userPrompt, agentRunArray);
-        } else {
-            const title = await generateTitleFromMessage(userPrompt);
-            //skip the summary step, no sessionId means no previous context
-            agentResponse = await runPlanAgent(userPrompt, "");
-            for (let attempt = 0; attempt < 3; attempt++) {
-                const sessionId = crypto.randomUUID();
-                try {
-                    const conversation = await prisma.conversation.create({
-                        data: {
-                            userId: Number(user.id),
-                            title,
-                            sessionId,
-                            messages: {
-                                create: [
-                                    { role: "USER", content: userPrompt },
-                                    { role: "ASSISTANT", content: JSON.stringify(agentResponse) }
-                                ]
-                            }
-                        }
-                    });
-                    return {
-                        message: "Created new conversation",
-                        data: agentResponse,
-                        conversationId: conversation.id,
-                        sessionId: conversation.sessionId,
-                    }
-                } catch (e: unknown) {
-                    if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                        if (e.code === "P2002") {// p2002 is unique constraint violation
-                            continue;
-                        }
-                    } else {
-                        throw e;
-                    }
-                }
+
+            if (typeof conversationId !== "number") {
+                throw AppError.badRequest("conversationId is required when sessionId is provided");
             }
+
+            await appendTurn(conversationId, userPrompt, agentResponse);
+
+            return {
+                message: "AI plan generated successfully",
+                data: agentResponse,
+                conversationId,
+                sessionId: incomingSessionId,
+            };
         }
-        saveMessages(conversationId, "USER", userPrompt);
-        saveMessages(conversationId, "ASSISTANT", typeof agentResponse === "string" ? agentResponse : JSON.stringify(agentResponse));
-        persistRun(
-            {
-                convId: conversationId,
-                input: userPrompt,
-                raw: typeof agentResponse === "string" ? agentResponse : JSON.stringify(agentResponse),
-                parsedType: agentResponse.type === "clarification" ? "MESSAGE" : agentResponse.type === "plan" ? "PLAN" : "ERROR"
-            }
-        )
+
+        const title = await generateTitleFromMessage(userPrompt);
+        agentResponse = await runPlanAgent(userPrompt, "");
+
+        const conversation = await createConversationWithRetry({
+            userId,
+            title,
+            userPrompt,
+            resp: agentResponse,
+        });
+
         return {
-            message: "AI plan generated successfully",
+            message: "Created new conversation",
             data: agentResponse,
-            conversationId,
-            sessionId: request.sessionId || null
+            conversationId: conversation.id,
+            sessionId: conversation.sessionId,
         };
     } catch (error) {
-        console.error('Error in AI plan generation:', error);
+        console.error("Error in AI plan generation:", error);
         if (error instanceof AppError) {
             throw error;
-        } else {
-            throw AppError.internal('AI plan generation failed');
         }
+        throw AppError.internal("AI plan generation failed");
     }
 });
