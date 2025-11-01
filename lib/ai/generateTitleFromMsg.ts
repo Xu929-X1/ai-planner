@@ -15,7 +15,7 @@ export async function generateTitleFromMessage(userInput: string): Promise<strin
         messages: [
             {
                 role: 'system',
-                content: '你是一个高效的对话标题生成助手，请根据用户的计划需求生成一个简洁、明确的标题。'
+                content: 'You are a helpful assistant that generates concise and relevant titles from user input.'
             },
             {
                 role: 'user',

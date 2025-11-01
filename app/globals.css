@@ -45,43 +45,44 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #0D1117;
-  --foreground: #e6edf3;
-  --card: #161B22;
-  --card-foreground: #e6edf3;
-  --popover: #161B22;
-  --popover-foreground: #e6edf3;
-  --primary: #38bdf8;
-  --primary-foreground: #FFFFFF;
-  --secondary: #30363D;
-  --secondary-foreground: #e6edf3;
-  --muted: #7d8590;
-  --muted-foreground: #e6edf3;
-  --accent: #0ea5e9;
-  --accent-foreground: #FFFFFF;
+  --background: #090B10;
+  --foreground: #c9d1d9;
+  --card: #13151a;
+  --card-foreground: #c9d1d9;
+  --popover: #181b20;
+  --popover-foreground: #c9d1d9;
+  --primary: #269b91;
+  --primary-foreground: #10141a;
+  --secondary: #23262e;
+  --secondary-foreground: #c9d1d9;
+  --muted: #444950;
+  --muted-foreground: #b1bac4;
+  --accent: #38bdf8;
+  --accent-foreground: #10141a;
   --destructive: #f87171;
-  --border: #30363D;
-  --input: #161B22;
-  --ring: #38bdf8;
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: #161B22;
-  --sidebar-foreground: #e6edf3;
-  --sidebar-primary: #38bdf8;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #30363D;
-  --sidebar-accent-foreground: #e6edf3;
-  --sidebar-border: #30363D;
-  --sidebar-ring: #38bdf8;
+  --border: #23262e;
+  --input: #181b20;
+  --ring: #269b91;
+  --chart-1: oklch(0.55 0.22 41.116);
+  --chart-2: oklch(0.48 0.13 184.704);
+  --chart-3: oklch(0.32 0.09 227.392);
+  --chart-4: oklch(0.7 0.18 84.429);
+  --chart-5: oklch(0.62 0.17 70.08);
+  --sidebar: #13151a;
+  --sidebar-foreground: #c9d1d9;
+  --sidebar-primary: #269b91;
+  --sidebar-primary-foreground: #10141a;
+  --sidebar-accent: #23262e;
+  --sidebar-accent-foreground: #b1bac4;
+  --sidebar-border: #23262e;
+  --sidebar-ring: #269b91;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
@@ -94,7 +95,8 @@
     @apply text-primary hover:text-accent transition-colors duration-150;
   }
 
-  pre, code {
+  pre,
+  code {
     font-family: var(--font-mono);
   }
 
